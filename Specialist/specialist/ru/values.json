@@ -1,0 +1,292 @@
+{
+  "city": [
+    {
+      "id": 1,
+      "ru": "Ереван",
+      "ru2": "Ереване",
+      "amountOfWorkers": 2
+    },
+    {
+      "id": 2,
+      "ru": "Абовян",
+      "ru2": "Абовяне",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 3,
+      "ru": "Айрум",
+      "ru2": "Айруме",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 4,
+      "ru": "Алаверди",
+      "ru2": "Алаверди",
+      "amountOfWorkers": 1
+    },
+    {
+      "id": 5,
+      "ru": "Апаран",
+      "ru2": "Апаране",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 6,
+      "ru": "Арарат",
+      "ru2": "Арарте",
+      "amountOfWorkers": 1
+    },
+    {
+      "id": 7,
+      "ru": "Армавир",
+      "ru2": "Армавире",
+      "amountOfWorkers": 1
+    },
+    {
+      "id": 8,
+      "ru": "Арташат",
+      "ru2": "Арштате",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 9,
+      "ru": "Артик",
+      "ru2": "Артике",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 10,
+      "ru": "Ахтала",
+      "ru2": "Ахтале",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 11,
+      "ru": "Аштарак",
+      "ru2": "Аштараке",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 12,
+      "ru": "Берд",
+      "ru2": "Берде",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 13,
+      "ru": "Бюрегаван",
+      "ru2": "Бюргеване",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 14,
+      "ru": "Вагаршапат",
+      "ru2": "Вагаршапате",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 15,
+      "ru": "Вайк",
+      "ru2": "Вайке",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 16,
+      "ru": "Ванадзор",
+      "ru2": "Ванадзоре",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 17,
+      "ru": "Варденис",
+      "ru2": "Варденисе",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 18,
+      "ru": "Веди",
+      "ru2": "Ведие",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 19,
+      "ru": "Гавар",
+      "ru2": "Гаваре",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 20,
+      "ru": "Горис",
+      "ru2": "Горисе",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 21,
+      "ru": "Гюмри",
+      "ru2": "Гюмри",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 22,
+      "ru": "Дастакерт",
+      "ru2": "Дастакерте",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 23,
+      "ru": "Джермук",
+      "ru2": "Джермуке",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 24,
+      "ru": "Дилижан",
+      "ru2": "Дилижане",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 25,
+      "ru": "Егвард",
+      "ru2": "Егварде",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 26,
+      "ru": "Ехегнадзор",
+      "ru2": "Ехегнадзоре",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 27,
+      "ru": "Иджеван",
+      "ru2": "Иджеване",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 28,
+      "ru": "Каджаран",
+      "ru2": "Каджаране",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 29,
+      "ru": "Капан",
+      "ru2": "Капане",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 30,
+      "ru": "Маралик",
+      "ru2": "Маралике",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 31,
+      "ru": "Мартуни",
+      "ru2": "Мартуни",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 32,
+      "ru": "Масис",
+      "ru2": "Масисе",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 33,
+      "ru": "Мегри",
+      "ru2": "Мегри",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 34,
+      "ru": "Мецамор",
+      "ru2": "Мецаморе",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 35,
+      "ru": "Ноемберян",
+      "ru2": "Ноемберяне",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 36,
+      "ru": "Нор Ачин",
+      "ru2": "Нор Ачине",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 37,
+      "ru": "Раздан",
+      "ru2": "Раздане",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 38,
+      "ru": "Севан",
+      "ru2": "Севане",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 39,
+      "ru": "Сисиан",
+      "ru2": "Сисиане",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 40,
+      "ru": "Спитак",
+      "ru2": "Спитаке",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 41,
+      "ru": "Степанаван",
+      "ru2": "Степанаване",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 42,
+      "ru": "Талин",
+      "ru2": "Талине",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 43,
+      "ru": "Ташир",
+      "ru2": "Ташире",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 44,
+      "ru": "Туманян",
+      "ru2": "Туманяне",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 45,
+      "ru": "Цахкадзор",
+      "ru2": "Цахкадзоре",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 46,
+      "ru": "Чамбарак",
+      "ru2": "Чамбараке",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 47,
+      "ru": "Чаренцаван",
+      "ru2": "Чаренцаване",
+      "amountOfWorkers": 0
+    },
+    {
+      "id": 48,
+      "ru": "Шамлуг",
+      "ru2": "Шамлуге",
+      "amountOfWorkers": 1
+    }
+  ]
+}

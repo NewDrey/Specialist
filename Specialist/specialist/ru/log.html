@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="/styles" />
+    <meta charset="utf-8">
+    <title>Вход</title>
+
+</head>
+<body>
+    <div class="ui_leftBorder"></div>
+
+    <div class=" ui_center menulist">
+        <div id="zatemnenie" class="zatemnenie">
+            <ul class="cityScroll" id="cityList"></ul>
+        </div>
+        <div id="errorDarkness" class="zatemnenie">
+            <div id="notRightData" class="errorMessage">
+                <h2>Неверный email или пароль</h2>
+                <button class="specialistChoiceButton" id="closeErrorButton">ОК</button>
+            </div>
+        </div>
+
+        <ul class="ui_menuList">
+            <li class="ui_menuList_li_left">
+                <a href="/">
+                    <img src="/profi" alt="профи">
+                </a>
+            </li>
+            <li class="ui_menuList_li_left">
+                <button class="ui_btn" id="tow">...определяется...</button>
+            </li>
+            <li class="ui_menuList_li_right"> <a href="/reg" id="regButton"> Регистрация </a></li>
+            <li class="ui_menuList_li_right"> <a href="/login" id="loginButton"> Логин </a></li>
+            <li class="ui_menuList_li_right">
+                <button id="specialistCabinetButton" class="ui_btn_cabinet">Кабинет специалиста</button>
+                <div id="specialistButton" class="ui_menuList_li_right_level">
+                    <button id="specialistChoiceButton" class="ui_btn">Специалистам &#9207;</button>
+                    <div id="specialistChoice" class="specialistChoice">
+                        <a class="ui_a" href="/workers_reg"><nobr>Регистрация специалистов</nobr></a>
+                        <a class="ui_a" href="/workers_log">Вход для специалистов</a>
+                    </div>
+                </div>
+            </li>
+
+        </ul>
+
+
+        <div class="loginDiv">
+            <form name="loginForm" id="loginForm">
+                <h1>Вход</h1>
+                <label class="inputLabelUserCabinet">Email:</label><br />
+                <input type="email" id="email" class="inputUserCabinet" name="email" required><br><br>
+                <label class="inputLabelUserCabinet">Пароль:</label>
+                <input type="password" id="password" class="inputUserCabinet" name="password" required><br><br>
+                <input class="loginButton" id="submit" type="submit" value="Войти">
+            </form>
+        </div>
+
+    </div>
+    <div class="ui_rightBorder"></div>
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript"></script>
+    <script src="https://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU" type="text/javascript"></script>
+    <script src="/scripts/login"></script>
+    <script src="/scripts/citySelect"></script>
+    <script src="/scripts/upperMenuScripts"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://unpkg.com/imask"></script>
+    <script>
+
+    </script>
+
+
+
+</body>
+
+</html>

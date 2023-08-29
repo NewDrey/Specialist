@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="/styles" />
+</head>
+<body>
+
+
+    <div class="serviceExtraInfo" id="orderExtraInfo">
+        <h2 class="extraInfoHeader" id="extraInfoHeader"></h2>
+        <label class="extraInfoLabel">Описание заказа:</label>
+        <div class="orderDescriptionDiv">
+            <a id="availableOrderDescription" class="availableOrderDescription"></a>
+
+        </div>
+        <input type="date" name="dateField" id="dateField" class="newOrderDate" /><br /><br />
+        <div class="newOrderDivCheck">
+            <label for="checkData" class="newOrderValue">По договоренности с исполнителем</label>
+            <input type="checkbox" id="checkDate" class="newOrderCheck" />
+        </div><br />
+        <div class="newOrderDivCheck">
+            <label for="checkDistance" class="newOrderValue">Работу можно выполнить дистанционно</label>
+            <input type="checkbox" id="checkDistance" name="newOrderDistance" class="newOrderCheck" />
+        </div>
+        <br />
+        <button id="sendMessage" class="loginButton" style="margin:3%"> Связаться </button>
+    </div>
+    <div class="workerRegBody" id="darknessDiv"></div>
+    <div class="ui_leftBorder"></div>
+
+    <div class=" ui_center menulist">
+        <div id="zatemnenie" class="zatemnenie">
+            <ul class="cityScroll" id="cityList"></ul>
+        </div>
+        <div id="errorDarkness" class="zatemnenie">
+            <div id="notRightData" class="errorMessage">
+                <h2>Данный пользователь уже существует</h2>
+                <button class="specialistChoiceButton" id="closeErrorButton">ОК</button>
+            </div>
+        </div>
+
+        <ul class="ui_menuList">
+            <li class="ui_menuList_li_left">
+                <a href="/">
+                    <img src="/profi" alt="профи">
+                </a>
+            </li>
+            <li class="ui_menuList_li_left">
+                <button class="ui_btn" id="tow">...определяется...</button>
+            </li>
+            <li class="ui_menuList_li_right"> <a href="/reg" id="regButton"> Регистрация </a></li>
+            <li class="ui_menuList_li_right"> <a href="/login" id="loginButton"> Логин </a></li>
+            <li class="ui_menuList_li_right">
+                <button id="specialistCabinetButton" class="ui_btn_cabinet">Кабинет специалиста</button>
+                <div id="specialistButton" class="ui_menuList_li_right_level">
+                    <button id="specialistChoiceButton" class="ui_btn">Специалистам &#9207;</button>
+                    <div id="specialistChoice" class="specialistChoice">
+                        <a class="ui_a" href="/workers_reg"><nobr>Регистрация специалистов</nobr></a>
+                        <a class="ui_a" href="/workers_log">Вход для специалистов</a>
+                    </div>
+                </div>
+            </li>
+
+        </ul>
+        <div id="listOfServices" class="ui_userData"></div>
+    </div>
+    <div class="ui_rightBorder"></div>
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript"></script>
+    <script src="https://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU" type="text/javascript"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/scripts/citySelect"></script>
+    <script src="/scripts/upperMenuScripts"></script>
+    <script src="/scripts/availableOrders"></script>
+</body>
+</html>

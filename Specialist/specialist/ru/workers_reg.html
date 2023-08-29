@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Регистрация Специалиста</title>
+    <link rel="stylesheet" href="/styles" />
+</head>
+
+<body>
+    <div class="workerRegBody" id="darknessDiv"></div>
+    <div class="serviceExtraInfo" id="serviceExtraInfo">
+
+        <form id="serviceForm">
+            <h2 class="extraInfoHeader" id="extraInfoHeader"></h2>
+
+            <lable for="priceInput" class="extraInfoLabel">Цена услуги</lable>
+            <input type="number" id="priceInput" class="priceInput" min="0" placeholder="Введите цену усулги"/>
+            <lable for="priceInput" class="extraInfoLabel"> &#x58f;</lable><br /><br />
+            <a class="commentText" id="positiveComment" style="margin-left:3%">Введите положительное числоа</a>
+
+            <label for="checkDistance" class="extraInfoLabel">Работу можно выполнить дистанционно</label>
+            <input type="checkbox" id="checkDistance" class="extraInfoCheck" />
+
+            <div class="extraInfoLabel">Ваши комментарии</div>
+            <textarea class="extraInfoTextArea" id="workerRegTextArea"></textarea>
+            <br />
+            <button id="serviceDataButton" type="submit" class="serviceDataButton">Подтвердить</button>
+            <button id="serviceDataButtonChange" type="submit" class="serviceDataButton">Изменить</button>
+        </form>
+    </div>
+    <div id="errorDarkness" class="zatemnenie">
+        <div id="notRightData" class="errorMessage">
+            <h2 id="errorComment">Данный пользователь уже существует</h2>
+            <button class="specialistChoiceButton" id="closeErrorButton">ОК</button>
+        </div>
+    </div>
+
+    <div class="ui_leftBorder"></div>
+
+    <div class=" ui_center menulist">
+        <div id="zatemnenie" class="zatemnenie">
+            <ul class="cityScroll" id="cityList"></ul>
+        </div>
+        <div id="errorDarkness" class="zatemnenie">
+            <div id="notRightData" class="errorMessage">
+                <h2>Данный пользователь уже существует</h2>
+                <button class="specialistChoiceButton" id="closeErrorButton">ОК</button>
+            </div>
+        </div>
+
+        <ul class="ui_menuList">
+            <li class="ui_menuList_li_left">
+                <a href="/">
+                    <img src="/profi" alt="профи">
+                </a>
+            </li>
+            <li class="ui_menuList_li_left">
+                <button class="ui_btn" id="tow">...определяется...</button>
+            </li>
+            <li class="ui_menuList_li_right"> <a href="/reg" id="regButton"> Регистрация </a></li>
+            <li class="ui_menuList_li_right"> <a href="/login" id="loginButton"> Логин </a></li>
+            <li class="ui_menuList_li_right">
+                <button id="specialistCabinetButton" class="ui_btn_cabinet">Кабинет специалиста</button>
+                <div id="specialistButton" class="ui_menuList_li_right_level">
+                    <button id="specialistChoiceButton" class="ui_btn">Специалистам &#9207;</button>
+                    <div id="specialistChoice" class="specialistChoice">
+                        <a class="ui_a" href="/workers_reg"><nobr>Регистрация специалистов</nobr></a>
+                        <a class="ui_a" href="/workers_log">Вход для специалистов</a>
+                    </div>
+                </div>
+            </li>
+
+        </ul>
+
+        <div class="loginDiv">
+
+            <form name='workerRegForm' id="workerRegForm">
+                <h1>Регистрация специалиста</h1>
+                <label class="inputLabelUserCabinet" style="margin:3%" for="email">Email:</label>
+                <input class="inputUserCabinet" type="email" id="email" name="email" required><br><br>
+
+                <label class="inputLabelUserCabinet" style="margin:3%" for="password">Пароль:</label>
+                <input class="inputUserCabinet" type="password" id="password" name="password" required><br><br>
+
+                <label class="inputLabelUserCabinet" style="margin:3%" for="name">Имя:</label>
+                <input class="inputUserCabinet" type="text" id="name" name="name" required
+                       pattern="[A-Za-zА-Яа-яЁё&#1328-&#1366&#1376-&#1416][^0-9]*"><br><br>
+
+                <label class="inputLabelUserCabinet" style="margin:3%" for="surname">Фамилия:</label>
+                <input class="inputUserCabinet" type="text" id="surname" name="surname" required
+                       pattern="[A-Za-zА-Яа-яЁё&#1328-&#1366&#1376-&#1416][^0-9]*"><br><br>
+
+                <label class="inputLabelUserCabinet" style="margin:3%" for="phone">Телефон:</label>
+                <input class="inputUserCabinet" type="tel" id="phone" name="phone" required><br><br>
+
+                <label class="inputLabelUserCabinet" style="margin:3%" for="cityList" required>Город:</label>
+
+                <select class="inputUserCabinet" id="cityListReg" name="cityListWorker">
+                    <option class='serviceListElement' disabled>Выберите город</option>
+                </select><br /><br />
+                <div id="servicesButtons"></div>
+                <label style="margin:3%" class="inputLabelUserCabinet"> Добавить услугу</label>
+                <input autocomplete="off" role="combobox" list="" id="input" name="browsers" placeholder="Выберите услугу" class="inputUserCabinet">
+                <!-- Its important that you keep list attribute empty to hide the default dropdown icon and the browser's default datalist -->
+                <button id="addService" style="margin:3%" class="ui_btn_change" disabled>Добавить</button>
+
+                <datalist id="services" role="listbox" class="servicesList" style="width:20%; margin-left:8%"></datalist>
+
+
+                <button class="loginButton" style="margin:3%" type="submit" id="submitButton">Зарегистрироваться</button>
+
+
+            </form>
+
+        </div>
+    </div>
+    <div class="ui_rightBorder"></div>
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript"></script>
+    <script src="https://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU" type="text/javascript"></script>
+    <script src="/scripts/workerReg"></script>
+    <script src="/scripts/citySelect"></script>
+    <script src="/scripts/upperMenuScripts"></script>
+    <script src="https://unpkg.com/imask"></script>
+    <script>
+        const element = document.getElementById('phone');
+        const maskOptions = {
+            mask: '+{374} (00) 000-000'
+        };
+        const mask = IMask(element, maskOptions);
+    </script>
+
+
+</body>
+</html>

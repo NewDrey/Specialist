@@ -1,0 +1,918 @@
+
+/*Левая граница странцы (пустая)*/
+.ui_leftBorder {
+    height: 100%;
+    float: left;
+}
+
+/*Центральное поле странцы, где находятся все объекты */
+.ui_center {
+    float: left;
+}
+
+/*Правая граница странцы (пустая)*/
+.ui_rightBorder {
+    height: 100%;
+    float: left;
+}
+
+/*Div для кнопки специалиста в верхнем меню*/
+.ui_menuList_li_right_level {
+    margin-top: -3%
+}
+
+/*Верхнее меню, правая часть (специалистам, логин, регистрация)*/
+.ui_menuList_li_right {
+    float: right;
+    margin-right: 15px;
+    opacity: 1;
+    list-style-type: none;
+}
+    
+/*Верхнее меню, левая часть (эмблема, определени города)*/
+    .ui_menuList_li_left {
+        float: left;
+        margin-right: 25px;
+        opacity: 1;
+        list-style-type: none;
+    }
+
+/*Элемент определения города*/
+.ui_btn {
+    background-color: none;
+    border: none;
+    background-color: white;
+    padding: 0px 0px;
+    text-align: left;
+    border-radius: 15px;
+    padding-left: 3px;
+    padding-right: 3px
+}
+    .ui_btn:hover {
+        background-color: grey;
+    }
+
+/*Элемент "личный кабинет пользователя", по умолчанию скрыта*/
+.ui_btn_cabinet {
+    background-color: none;
+    border: none;
+    background-color: white;
+    padding: 0px 0px;
+    text-align: left;
+    display:none
+}
+    .ui_btn_cabinet:hover {
+        background-color: grey;
+    }
+
+
+@media screen and (max-width: 750px) {
+    .ui_menuList_li_left {
+        font-size: 2.5vw
+    }
+
+    .ui_menuList_li_right {
+        font-size: 2.5vw
+    }
+
+    .ui_leftBorder {
+        width: 0;
+        display:none
+    }
+    .ui_center {
+        width: 100%;
+    }
+    .ui_rightBorder {
+        width: 0;
+        display: none
+    }
+    .ui_btn {
+        font-size: 2.5vw;
+    }
+    .ui_btn_cabinet {
+        font-size: 2.5vw;
+    }
+    
+}
+
+@media screen and (min-width: 750px) {
+    .ui_menuList {
+        width: 100%;
+        float: left;
+        padding: 10px;
+        margin: 0px;
+    }
+
+    .ui_menuList_li_left {
+        font-size: 2vw
+    }
+    .ui_menuList_li_right {
+        font-size: 2vw
+    }
+    .ui_leftBorder {
+        width: 0;
+        display: none
+    }
+    .ui_center {
+        width: 100%;
+    }
+    .ui_rightBorder {
+        width: 0;
+        display: none
+    }
+    .ui_btn {
+        font-size: 2vw;
+    }
+    .ui_btn_cabinet {
+        font-size: 2vw;
+    }
+
+}
+
+@media screen and (min-width: 1180px) {
+    .ui_menuList {
+        width: 100%;
+        float: left;
+        padding: 10px;
+        margin: 0px;
+    }
+
+    .ui_menuList_li_left {
+        font-size: 0.7vw
+    }
+    .ui_menuList_li_right {
+        font-size: 2vmin
+    }
+    .ui_leftBorder {
+        width: 20%;
+        display: block;
+    }
+    .ui_center {
+        width: 60%;
+    }
+    .ui_rightBorder {
+        width: 19%;
+        display: block;
+    }
+
+    .ui_btn {
+        font-size: 2vmin
+    }
+    .ui_btn_cabinet {
+        font-size: 2vmin
+    }
+    
+}
+
+/*Блок затемнения, вызывается при открытии списка городов*/
+.zatemnenie {
+    background: rgba(102, 102, 102, 0.5);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    display: none;
+}
+
+/*Блок выбора городов (список с прокруткой), по умолчанию скрыт*/
+.cityScroll {
+    padding-top: 0px;
+    background: #ffffff;
+    margin-left: 19%;
+    margin-top: 4.2vh;
+    padding-bottom: 0.5%;
+    padding-top: 0.5%;
+    list-style-type: none;
+    border: none;
+    border-radius: 20px;
+    max-height: 19%;
+    width: 20%;
+    padding-left: 0;
+    overflow-y: scroll;
+    position: relative;
+    display: none;
+    padding-left: 1%
+}
+
+/*кнопки в списке выбора городов*/
+.ui_listButton {
+    background: #fff0;
+    border-radius: 15px;
+    border-style: none;
+    font-size: 2vh;
+    position: relative;
+    cursor: pointer;
+    width: 97%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    text-align: left;
+    padding-left: 4%
+}
+
+    .ui_listButton:hover {
+        background: #e6e6ff;
+    }
+
+/*Выпадающий список от кнопки "специалистам"*/
+.specialistChoice {
+    position: fixed;
+    display: flex;
+    z-index: 100;
+    flex-direction: column;
+    border: none;
+    background-color: rgba(102, 102, 102, 0.22);
+    border-radius: 15px;
+    padding-bottom: 1%;
+    padding-top: 1%;
+    visibility: hidden;
+    width: 28%
+}
+
+/*Варианты в выпадающем списке от кнопки "специалистам"*/
+.ui_a {
+    cursor: pointer;
+    border-radius: .6em;
+    width: 90%;
+    padding-left: 4%;
+    margin-left: 3%;
+    padding-top:1%;
+    padding-bottom:1%;
+    
+}
+
+    .ui_a:hover {
+        background-color: darkgray
+    }
+
+/*Растягиваем весь Элемент на 100%*/
+html, body {
+    height: 100%
+}
+
+/*Элемент доп. меню в личных кабинетах и заказах*/
+.ui_sidenav {
+    width: 24%;
+    z-index: 1;
+    float: left;
+    background-color: rgba(102, 102, 102, 0.22);
+    margin-top: 2%;
+    border-radius: 15px;
+    margin-bottom: 1px
+}
+    .ui_sidenav a {
+        padding: 6px 8px 6px 16px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        margin-top: 2%;
+        cursor: pointer
+        
+    }
+
+        .ui_sidenav a:hover {
+            color: #c52020;
+        }
+
+/*Основной блок информации в личных кабинетах, заказах, чатах*/
+.ui_userData {
+    height: 100%;
+    width: 74%;
+    z-index: 1;
+    overflow-x: hidden;
+    float: left;
+}
+    .ui_userData div {
+        margin-top:3%;
+        padding-left: 5%;
+        padding-bottom: 3%;
+        padding-top: 3%;
+        margin-left: 3%;
+        border-radius: 20px;
+        background-color: rgba(102, 102, 102, 0.22);
+        width: 90%;
+    }
+
+/*Label для поля ввода в Личном кабинете пользователя*/
+.inputLabelUserCabinet{
+    color: black;
+}
+
+/*Поля ввода в Личном кабинете пользователя*/
+.inputUserCabinet {
+    border: none;
+    border-radius: 15px;
+    padding-left: 2%;
+    margin-top: 2%;
+    color: black;
+    height:35px
+}
+
+/*Кнопка формы для замены информации в карточках пользователя или специалиста*/
+.ui_btn_change {
+    border: none;
+    border-radius: 15px;
+    padding-left: 2%;
+    padding-right: 2%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    background-color: rgba(45, 248, 167, 1);
+}
+    .ui_btn_change:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }
+
+/*Ссылка на переход ко всем заказам*/
+.showAllOrdersButton {
+    border: none;
+    border-radius: 15px;
+    margin-top: 3%;
+    font-size: 120%;
+    padding-left: 1%;
+    padding-top: 1%;
+    padding-right: 1%;
+    padding-bottom: 1%;
+    background-color: rgba(45, 248, 167, 1);
+}
+    .showAllOrdersButton:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }
+
+/*Кнопка выхода в личных кабинетах*/
+.ui_exitButton {
+    font-size: 25px;
+    color: black;
+    border: none;
+    background-color: rgba(102, 102, 102, 0)
+}
+    .ui_exitButton:hover {
+        color: red;
+    }
+
+/*Основной заголовк домашней страницы*/
+.homeMainHeader {
+    font-size: 65px;
+    font-family: arial;
+    margin-top: 10%;
+    position:relative
+}
+
+/*h2 на домашней странице*/
+.secondeHomeHeader {
+    margin-top: -1%;
+    font-size: 160%;
+    font-family: arial;
+    color: rgba(100,100,100,1);
+    font-style: normal
+}
+
+/*Блок для поисковой строки на домашней странице*/
+.searchField {
+    border: none;
+    height: 4%;
+    width: 100%;
+    margin-top: 4%
+}
+
+/*Поисковая строка на домашней странице*/
+.inputField {
+    width: 80%;
+    border-radius: 15px;
+    background-color: rgba(102, 102, 102, 0.12);
+    border: none;
+    height: 50px;
+    color: black;
+    margin-left: -1%;
+    padding-left:2%
+}
+/*Кнопка поиска на домашней странице*/
+.searchButton {
+    width: 18%;
+    border-radius: 15px;
+    background-color: rgba(45, 248, 167, 1);
+    border: none;
+    height: 60px;
+    font-size: 120%
+}
+    .searchButton:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }
+
+/*Блок для выпадающего списка при поиске услуг*/
+.serviceListBlock {
+    padding-top: 7px;
+    color: black;
+    width: 100%;
+    position: relative;
+}
+
+/*Выпадающий список при поиске услуги*/
+.servicesList {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color:white;
+    z-index: 50;
+    position: absolute;
+    padding-top: 7px;
+    padding-left: 1%;
+}
+
+/*Элементы выпадающего списка при поиске услуги*/
+.serviceListElement {
+    color: black;
+    border-radius: 5px;
+    cursor: pointer
+}
+    .serviceListElement:hover {
+        background-color: rgba(102, 102, 102, 0.12);
+       
+    }
+
+/*Блок при создании нового заказа*/
+.newOrderDiv {
+    width: 100%;
+    height: 40%;
+    padding-top: 10%;
+    display:block
+}
+
+/*Название услуги при создании нового заказа*/
+.serviceName {
+    font-size: 25px;
+    margin-bottom: 5%;
+    margin-left: 3%;
+    color: rgba(102, 102, 102, 1);
+}
+
+/*Заголовок для textarea при создании нового заказа*/
+.serviceDescription {
+    font-size: 35px;
+    margin-bottom: 5%;
+    margin-left: 3%;
+    color: black;
+}
+
+/*Форма при создании нового заказа*/
+.newOrderForm {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/*textarea при создании нового заказа*/
+.newOrderTextArea {
+    border: none;
+    border-radius: 15px;
+    background-color: rgba(102, 102, 102, 0.12);
+    position: relative;
+    color: black;
+    width: 70%;
+    height: 100%;
+    resize: none;
+    box-sizing: border-box;
+    padding-top: 2%;
+    padding-left: 2%;
+    font-size: 20px;
+    margin-left: 3%;
+}
+    .newOrderTextArea:hover {
+        background-color:rgba(102, 102, 102, 0.22) ;
+    }
+    .newOrderTextArea:focus {
+        border:none
+    }
+    
+/*Поле ввода даты при создании нового заказа*/
+.newOrderDate {
+    border: none;
+    border-radius: 15px;
+    margin-left: 3%;
+    margin-top: 3%;
+    background-color: rgba(102, 102, 102, 0.12);
+    color: black;
+    height: 45px;
+    width: 120px;
+    padding-left: 2%
+}
+
+    .newOrderDate:disabled {
+        background-color: rgba(102, 102, 102, 0.32);
+    }
+
+/*Блоки для уточнения деталей нового заказа*/
+.newOrderDivCheck {
+    flex-direction: row;
+    margin-left: 3%;
+    margin-top: 1%
+}
+
+/*Label для полей уточнения нового заказа*/
+.newOrderValue {
+    position: relative;
+    color: black;
+    vertical-align: middle;
+    font-size: 18px
+}
+
+/*Checkbox при создании нового заказа*/
+.newOrderCheck {
+    position: relative;
+    height: 100%;
+    width: 3%;
+    vertical-align: middle;
+}
+
+/*Кнопка создания нового заказа*/
+.newOrderButton {
+    border: none;
+    border-radius: 15px;
+    height: 15%;
+    width: 20%;
+    margin-left: 3%;
+    margin-top: 3%;
+    font-size: 20px;
+    background-color: rgba(102, 102, 102, 0.12);
+}
+    .newOrderButton:hover {
+        border: none;
+        background-color: rgba(102, 102, 102, 0.22);
+    }
+
+/*Блок после создания нового заказа, по умолчанию скрыт*/
+.returnHomeDiv {
+    width: 100%;
+    padding-top: 20%;
+    display: none
+}
+
+/*Заголовок после создания нового заказа*/
+.returnHomeHeader {
+    position: relative;
+    font-size: 50px;
+    text-align: center;
+}
+
+/*Кнопка возврата на домашнюю страницу после создания нового заказа*/
+.returnHomeButton {
+    position: relative;
+    font-size: 25px;
+    text-align: center;
+    margin-left: auto;
+    display: block;
+    margin-right: auto;
+    border: none;
+    background-color: rgba(45, 248, 167, 1);
+    border-radius: 15px;
+    padding: 2%
+}
+
+    .returnHomeButton:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }
+
+/*Заголовок в ЛК Специалиста*/
+h2.workerCabinetH2 {
+    margin: 5%;
+    color: black;
+    font-size: 160%;
+    margin-left: 0
+}
+
+/*Блок, где указаны услуги специалиста (ЛК специалиста)*/
+div.workerCabinetServices {
+    padding: 0;
+    margin-left: 0;
+    padding: 0;
+    width: 100%;
+    background-color: rgba(45, 248, 167, 0)
+}
+
+/*Кнопка - услуга специалиста (ЛК специалиста)*/
+.workerService {
+    position: relative;
+    color: black;
+    margin: 1%;
+    border: none;
+    border-radius: 15px;
+    font-size: 130%;
+    vertical-align: middle;
+    background-color: rgba(45, 248, 167, 1);
+    padding: 1.5%
+}
+    .workerService:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }
+
+/*Блок затемнения в ЛК специалиста, скрыт по умолчанию*/
+div.workerRegBody {
+    background-color: rgba(102, 102, 102, 0.4);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    margin-left: -10px;
+    margin-top: -10px;
+    display: none
+}
+
+/*Блок уточнения деталей услуги в ЛК специалиста, скрыт по умолчанию*/
+.serviceExtraInfo {
+    position: absolute;
+    width: 50%;
+    height: 60%;
+    z-index: 22;
+    display: none;
+    border: none;
+    margin-left: 25%;
+    margin-top: 10%;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+/*Заголовк уточнения деталей услуги в ЛК Специалиста*/
+.extraInfoHeader {
+    padding-left: 3%;
+    padding-top: 0;
+}
+
+/*Label в блоке уточнения деталей услуги в ЛК Специалиста*/
+.extraInfoLabel {
+    margin-left: 3%;
+    font-size: 130%;
+    color: black;
+    margin-top:3%
+}
+
+/*Поле ввода цены при уточнении деталей услуги в ЛК Специлиста*/
+.priceInput {
+    border: none;
+    background-color: rgba(102, 102, 102, 0.12);
+    border-radius: 15px;
+    margin-left: 3%;
+    width: 20%;
+    color: black;
+    padding-left: 3%;
+    direction:ltr;
+    height: 25px
+}
+
+/*Checkbox при уточнении деталей услуги в ЛК специалиста*/
+.extraInfoCheck {
+    position: relative;
+    height: 100%;
+    width: 5%;
+    vertical-align: middle;
+    block-size: 20px
+}
+
+/*Блок для textarea в уточнении деталей услуги в ЛК специалиста*/
+.extraInfoCheckArea {
+    margin-left: 3%;
+    margin-top: 3%
+}
+
+/*Textarea в  уточнении деталей услуги в ЛК специлиста*/
+.extraInfoTextArea {
+    position: relative;
+    border: none;
+    border-radius: 15px;
+    background-color: rgba(102, 102, 102, 0.12);
+    color: black;
+    resize: none;
+    width: 70%;
+    height: 240px;
+    box-sizing: border-box;
+    padding-top: 2%;
+    padding-left: 2%;
+    margin-left: 3%;
+    margin-top: 3%
+}
+/*Кнопка изменения деталей услуги в ЛК специалиста*/
+.serviceDataButton {
+    border: none;
+    background-color: rgba(102, 102, 102, 0.12);
+    border-radius: 15px;
+    margin-left: 3%;
+    margin-top:2%;
+    width: 20%;
+    height:35px;
+    color: black;
+    display:block
+}
+    .serviceDataButton:hover {
+        background-color: rgba(102, 102, 102, 0.22);
+    }
+
+/*Кнопка добавления услуги при добавлении из ЛК Специлиста*/
+.serviceDataButtonAdd {
+    border: none;
+    background-color: rgba(102, 102, 102, 0.12);
+    border-radius: 15px;
+    margin-left: 3%;
+    margin-top:2%;
+    width: 20%;
+    height:35px;
+    color: black;
+    display:none
+}
+    .serviceDataButtonAdd:hover {
+        background-color: rgba(102, 102, 102, 0.22);
+    }
+
+
+/*Заголовки заказов в списке доступных заказов*/
+.availableOrderHeader {
+    text-decoration: underline;
+    cursor: pointer
+}
+    .availableOrderHeader:active {
+        color: rgba(122, 122, 122, 0.99);
+    }
+
+/*Комментарий к заказу при просмотре доступного заказа*/
+.availableOrderDescription {
+    margin-left: 5%
+}
+
+
+/*Задний фон для логина и регистрации*/
+.loginDiv {
+    background-color: rgba(102, 102, 102, 0.22);
+    margin-top: 10%;
+    border-radius: 15px;
+    align-content: center;
+    display: flex;
+    justify-content: center;
+    padding-top: 3%;
+    padding-bottom: 3%;
+}
+/*сообщение об ошибке в Логине и регистрации*/
+.errorMessage {
+    background-color: lightgrey;
+    position: absolute;
+    width: 30%;
+    height: 20%;
+    margin-left: 35%;
+    margin-top: 15%;
+    border-radius: 15px;
+    z-index: 100;
+    text-align: center;
+    padding-top: 5%
+}
+
+/*Кнопка логина во всех элементах*/
+.loginButton {
+    border-radius: 15px;
+    background-color: rgba(45, 248, 167, 1);
+    border: none;
+    height: 60px;
+    font-size: 120%;
+    display: inline-block;
+    padding-left: 6%;
+    padding-right: 6%;
+}
+
+    .loginButton:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }
+
+
+
+/*Поле информации в описнаии доступного заказа*/
+.orderDescriptionDiv {
+    background-color: rgba(102, 102, 102, 0.22);
+    margin-top: 3%;
+    border-radius: 15px;
+    display: flex;
+    padding-top: 3%;
+    padding-bottom: 3%;
+    width: 80%;
+    margin-left:10%
+}
+
+/*Основное поле чата*/
+.chatDiv {
+    overflow: scroll;
+    max-height: 60vh;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden
+}
+
+/*Зона чата если для пользователя*/
+.chatAreaUser {
+    overflow: scroll;
+    max-height: 60vh;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    display: none
+}
+
+/*Зона описания заказа при открытии заказа*/
+.orderDescriptionUser {
+    display: block;
+    background-color: rgba(102, 102, 102, 0.22);
+    max-height: 60vh;
+    min-height: 60vh;
+}
+/*Поле ввода сообщения в чате*/
+.chatTextArea {
+    width: 35vw;
+    resize: none;
+    float: right;
+    margin-top: 3%;
+    border-radius: 15px;
+    border: none;
+    background-color: rgba(102, 102, 102, 0.15);
+    height: 7vh;
+    padding: 1%;
+}
+
+/*Кнопка отправки сообщения*/
+.chatButtonSend {
+    float: right;
+    height: 7vh;
+    margin-top: 3%;
+    margin-left: 3%;
+    border-radius: 15px;
+    border: none;
+    background-color: rgba(45, 248, 167, 1);
+    font-size: 100%;
+    display: block
+}
+    .chatButtonSend:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }
+
+/*Кнопки в боковм меню пользователя по доступным чатам*/
+.chatAnsweredButtons{
+    border: none;
+    border-radius: 15px;
+    width: 90%;
+    font-size: 140%;
+    margin-left: 5%;
+    margin-top: 2%;
+    margin-bottom: 3%;
+    padding: 3%
+
+}
+    .chatAnsweredButtons:hover {
+        background-color: rgba(102, 102, 102, 0.22);
+    }
+
+/* Текст комментариев при изменении данных в ЛК*/
+.commentText{
+    font-size: 110%;
+    display: none;
+    font-style:italic;
+    color:ThreeDDarkShadow
+}
+
+/*Кнопка показа всех заказов на домашнем экране*/
+.showAvailableOrders {
+    display: none;
+    background-color: rgba(45, 248, 167, 1);
+    font-size: 200%;
+    border: none;
+    border-radius: 15px;
+    padding: 3%;
+    margin-left: 30%;
+    margin-top: 8%;
+    margin-bottom: 5%
+    
+}
+
+    .showAvailableOrders:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }
+
+
+.orderDivUserCabinet:hover {
+    background-color: rgba(102, 102, 102, 0.52);
+    cursor: pointer
+}
+
+/*Кнопки изменения статуса заказа*/
+.changeStatusButton {
+    border-radius: 15px;
+    background-color: rgba(45, 248, 167, 1);
+    border: none;
+    height: 60px;
+    font-size: 120%;
+    display: inline-block;
+    padding-left: 6%;
+    padding-right: 6%;
+    margin-right:5%;
+    float:right
+}
+
+    .changeStatusButton:hover {
+        background-color: rgba(45, 194, 167, 1);
+    }

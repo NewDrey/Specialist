@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Новый заказ</title>
+    <link rel="stylesheet" href="/styles" />
+</head>
+<body>
+    <div class="ui_leftBorder"></div>
+    <div class=" ui_center ">
+        <div id="zatemnenie">
+            <ul class="cityScroll" id="cityList"></ul>
+        </div>
+
+        <ul class="ui_menuList">
+            <li class="ui_menuList_li_left">
+                <a href="/">
+                    <img src="/profi" alt="профи">
+                </a>
+            </li>
+            <li class="ui_menuList_li_left">
+                <button class="ui_btn" id="tow">...определяется...</button>
+            </li>
+            <li class="ui_menuList_li_right"> <a href="/reg" id="regButton"> Регистрация </a></li>
+            <li class="ui_menuList_li_right"> <a href="/login" id="loginButton"> Логин </a></li>
+            <li class="ui_menuList_li_right">
+
+                <div id="specialistButton"  class="ui_menuList_li_right_level">
+                    <button class="ui_btn" id="specialistChoiceButton">Специалистам &#9207;</button>
+                    <div id="specialistChoice" class="specialistChoice">
+                        <a class="ui_a" href="/workers_reg">Регистрация специалистов</a>
+                        <a class="ui_a" href="/workers_log">Вход для специалистов</a>
+                    </div>
+                </div>
+            </li>
+
+        </ul>
+
+        <div id="mainDiv" class="newOrderDiv">
+            <div id="serviceName" class="serviceName"></div>
+            <div class="serviceDescription">Добавьте описание заказа</div>
+            <form class="newOrderForm" name="newOrderForm">
+                <textarea name="descriptionField" id="descriptionField" class="newOrderTextArea" rows="4" cols="50" placeholder="Опишите свой заказ подробнее"></textarea>
+                <input type="date" name="dateField" id="dateField" class="newOrderDate" />
+                <div class="newOrderDivCheck">
+                    <label for="checkData" class="newOrderValue">По договоренности с исполнителем</label>
+                    <input readonly type="checkbox" id="checkDate" class="newOrderCheck" />
+                </div>
+                <div class="newOrderDivCheck">
+                    <label for="checkDistance" class="newOrderValue">Работу можно выполнить дистанционно</label>
+                    <input type="checkbox" id="checkDistance" name="newOrderDistance" class="newOrderCheck" />
+                </div>
+                    <button id="newOrderButton" class="newOrderButton">Создать заказ</button>
+            </form>
+        </div>
+
+        <div id="returnHomeDiv" class="returnHomeDiv">
+            <h1 class="returnHomeHeader">Ваш заказ создан!</h1>
+            <button id="returnHomeButton" class="returnHomeButton">На главную</button>
+        </div>
+        <script src="http://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript"></script>
+        <script src="https://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU" type="text/javascript"></script>
+        <script src="/scripts/newOrder"></script>
+        <script src="/scripts/citySelect"></script>
+        <script src="/scripts/upperMenuScripts"></script>
+    </div>
+    <div class="ui_rightBorder"></div>
+</body>
+</html>
