@@ -11,7 +11,6 @@ request.addEventListener('load', async () => {
         orderHeader = document.createElement('h2')
         orderHeader.id = chatId
         orderHeader.className = 'availableOrderHeader'
-        console.log(JSON.parse(request.response))
         await findServiceName(JSON.parse(request.response)[i].Order.ServiceServiceId, orderHeader)
         
         /** Задний фон для каждого чата */

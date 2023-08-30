@@ -2,9 +2,12 @@
 
 import { Sequelize, INTEGER } from 'sequelize';
 var GodObj = {};
+
+import { mailerUser, mailerWorker } from './mailer.js'
 import  fs from 'fs';
 import * as sequelize from 'sequelize';
 import bcrypt from 'bcrypt'
+import crypto from 'crypto';
 /*import values from "../ru/values.json");*/
 
 
@@ -56,6 +59,10 @@ const sqlConnect = () => {
         confirmed: {
             type: Sequelize.BOOLEAN,
             allowNull: false
+        },
+        isActive: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false
         }
     },
         {
@@ -94,6 +101,14 @@ const sqlConnect = () => {
             allowNull: false,
             primaryKey: true,
             autoIncrement: true
+        }, 
+        confirmed: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false
+        },
+        isActive: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false
         }
 
     },
@@ -144,7 +159,7 @@ const sqlConnect = () => {
         },
         price: {
             type: Sequelize.INTEGER,
-            allowNull: false
+            allowNull: true
         },
         comment: {
             type: Sequelize.TEXT,
@@ -183,7 +198,7 @@ const sqlConnect = () => {
         city: {
             type: Sequelize.TEXT,
             allowNull: false
-        }
+        },
 
     });
     GodObj.order = Order
@@ -196,6 +211,10 @@ const sqlConnect = () => {
             primaryKey: true,
             allowNull: false
         },
+        isActive: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false
+        }
 
     });
     GodObj.chat = Chat
@@ -236,7 +255,36 @@ const sqlConnect = () => {
             tablename: 'dbo.Citites'
         });
     GodObj.city = City;
-    
+
+    /** Образ токена для регистрации пользователя*/
+    const UserToken = sequelize.define('userToken', {
+        id: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        token: {
+            type: Sequelize.TEXT,
+            allowNull: false
+        }
+    });
+    GodObj.userToken = UserToken;
+
+    /** Образ токена для регистрации специалиста*/
+    const WorkerToken = sequelize.define('workerToken', {
+        id: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        token: {
+            type: Sequelize.TEXT,
+            allowNull: false
+        }
+    })
+    GodObj.workerToken = WorkerToken;
 
     /** Описание связей в БД */
     Message.belongsTo(Chat);
@@ -254,6 +302,11 @@ const sqlConnect = () => {
     Order.belongsTo(User)
     Worker.belongsToMany(Service, { through: ServiceWorkers })
     Service.belongsToMany(Worker, { through: ServiceWorkers })
+
+    UserToken.belongsTo(User);
+    User.hasOne(UserToken);
+    WorkerToken.belongsTo(Worker);
+    Worker.hasOne(WorkerToken);
 }
 
 
@@ -262,20 +315,35 @@ const sqlConnect = () => {
  */
 const registerUser = async (email_str, password_str) => {
     const User = GodObj.user;
+    const UserToken = GodObj.userToken
     var answer = '';
     if (email_str == undefined || password_str == undefined) {
         answer = false;
         return
     };
-    await User.findOne({ where: { email: email_str } })
+    await User.findOne({ where: { email: email_str, isActive: 1 } })
         .then(async (user) => {
             if (user == null) {
-                await User.create({ email: email_str, password: password_str, confirmed: 0 });
+                await User.create({ email: email_str, password: password_str, confirmed: 0, isActive:1 }).then(async (user) => {
+                    var token = crypto.randomBytes(16).toString('hex');
+                    UserToken.create(
+                        {
+                            token: token, UserUserId: user.userId
+
+                        }).then(async (userToken) => {
+                            if (userToken == null) {
+                                answer = false;
+                                return answer
+                            } else {
+                                await (mailerUser(user.email, userToken.token))
+                            }
+                        })
+                });
                 answer = true;
             } else {
                 answer = false;
             }
-        }).catch(err => console.log(err));
+        })
     return answer
 };
 
@@ -290,21 +358,27 @@ const loginUser = async (email_str, password_str) => {
         return
     };
     var User = GodObj.user;
-        await User.findOne({ where: { email: email_str } })
+    await User.findOne({ where: { email: email_str, isActive:1 } })
             .then(async (user) => {
-            if (user == null) {
-                answer.push(false, null);
-            } else {
-
-                    if (password_str == user.password ) {
-                        answer.push(true, user.userId, user.name, user.phone);
+                
+                if (user == null) {
+                    answer.push(false, null);
+                } else {
+                    if (user.confirmed == 0) {
+                        answer.push(false);
                         return
                     } else {
-                        answer.push(false, null);
-                        return
-                    }
-                
-                };
+
+                        if (password_str == user.password) {
+                            answer.push(true, user.userId, user.name, user.phone);
+                            return
+                        } else {
+                            answer.push(false, null);
+                            return
+                        }
+
+                    };
+                }
             }).catch(err => console.log(err));
 
     return answer
@@ -318,20 +392,25 @@ const loginWorker = async (email_str, password_str) => {
     var answer = [];
     if (email_str == undefined || password_str == undefined) {
         answer.push(false);
-        return
+        return answer
     };
-    await Worker.findOne({ where: { email: email_str } })
+    await Worker.findOne({ where: { email: email_str, isActive:1 } })
         .then(async (worker) => {
             if (worker == null) {
                 answer.push(false, null)
-            } else {
+            } else { 
+                if (worker.confirmed == 0) {
+                    answer.push(false);
+                    return answer
+                } else {
                     if (password_str == worker.password) {
                         answer.push(true, worker.workerId, worker.name, worker.phone);
-                        return
+                        return answer
                     } else {
                         answer.push(false, null);
-                        return
+                        return answer
                     }
+                }
             }
         
         }).catch(err => console.log(err));
@@ -346,6 +425,7 @@ const registerWorker = async (email_str, password_str, name_str, surname_str, ph
     var Worker = GodObj.worker;
     var Service = GodObj.service;
     var ServiceWorkers = GodObj.serviceWorkers;
+    const WorkerToken = GodObj.workerToken
     var City = GodObj.city;
     var answer = ''
     if (email_str == undefined || password_str == undefined || name_str == undefined || surname_str == undefined || phone_str == undefined
@@ -373,12 +453,24 @@ const registerWorker = async (email_str, password_str, name_str, surname_str, ph
                             return
                         } else {
 
-                            await Worker.create({ email: email_str, password: password_str, name: name_str, surname: surname_str, phone: phone_str, city: city_str })
+                            await Worker.create({ email: email_str, password: password_str, name: name_str, surname: surname_str, phone: phone_str, city: city_str, confirmed: 0, isActive:1 })
                                 .then(async (worker) => {
                                     if (!worker) {
                                         answer = false;
                                         return
                                     };
+                                    var token = crypto.randomBytes(16).toString('hex');
+                                    WorkerToken.create({
+                                        token: token,
+                                        WorkerWorkerId: worker.workerId
+                                    }).then(async (workerToken) => {
+                                        if (workerToken == null) {
+                                            answer = false;
+                                            return answer
+                                        } else {
+                                            await (mailerWorker(worker.email, workerToken.token))
+                                        }
+                                    })
                                     if (typeof (servicesList) == 'object') {
                                         if (servicesList.length != 1) {
                                             for (var i = 0; i < servicesList.length / 4; i++) {
@@ -421,7 +513,7 @@ const registerWorker = async (email_str, password_str, name_str, surname_str, ph
                                             answer = true;
                                             return
                                         };
-                                    };
+                                    }
                                 });
                         };
                     });
@@ -549,7 +641,8 @@ const findWorker = async (workerId) => {
     } else {
         await Worker.findOne({
             where: {
-                workerId: parseInt(workerId)
+                workerId: parseInt(workerId),
+                isActive:1
             },
             attributes: { exclude: ['password', 'email'] },
         }).then(result => {
@@ -565,6 +658,8 @@ const findWorker = async (workerId) => {
  */
 const deleteUser = async (id) => {
     var User = GodObj.user;
+    var Chat = GodObj.chat
+    var Order = GodObj.order
     var answer = ''
     if (id == undefined) {
         answer = false
@@ -572,14 +667,48 @@ const deleteUser = async (id) => {
     } else {
         await User.findOne({
             where: {
-                userId: id
+                userId: id,
+                isActive: 1
             }
         }).then(async (user) => {
             if (user == null) {
                 answer = false
                 return answer
             } else {
-                await user.destroy();
+                user.isActive = 0;
+                user.save();
+                await Chat.findAll({
+                    where: {
+                        UserUserId: id
+                    }
+                }).then(async (chats) => {
+                    for (var chat in chats) {
+                        await Chat.findOne({
+                                where: {
+                                    id: chats[chat].dataValues.id
+                                }
+                            }).then(changeChat => {
+                                changeChat.isActive = 0
+                                changeChat.save()
+                            });
+                        }
+                });
+                await Order.findAll({
+                    where: {
+                        UserUserId: id
+                    }
+                }).then(async (orders) => {
+                    for (var order in orders) {
+                        await Order.findOne({
+                            where: {
+                                id: orders[order].dataValues.id
+                            }
+                        }).then(changeOrder => {
+                            changeOrder.isActive = 0
+                            changeOrder.save()
+                        })
+                    }
+                })
                 answer = true
                 return answer
             };
@@ -593,6 +722,8 @@ const deleteUser = async (id) => {
  */
 const deleteWorker = async (id) => {
     var Worker = GodObj.worker;
+    var Chat = GodObj.chat;
+    var ServiceWorker = GodObj.serviceWorkers;
     var answer = ''
     if (id == undefined) {
         answer = false;
@@ -605,14 +736,46 @@ const deleteWorker = async (id) => {
 
             await Worker.findOne({
                 where: {
-                    workerId: id
+                    workerId: parseInt(id)
                 }
             }).then(async (worker) => {
                 if (worker == null) {
                     answer = false
                     return answer
                 } else {
-                    await worker.destroy();
+                    worker.isActive = 0
+                    worker.save();
+                    await Chat.findAll({
+                        where: {
+                            WorkerWorkerId: id
+                        }
+                    }).then(async (chats) => {
+                        for (var chat in chats) {
+                            await Chat.findOne({
+                                where: {
+                                    id: chats[chat].dataValues.id
+                                }
+                            }).then(changeChat => {
+                                changeChat.isActive = 0
+                                changeChat.save()
+                            });
+                        }
+                    });
+                    await ServiceWorker.findAll({
+                        where: {
+                            WorkerWorkerId: id
+                        }
+                    }).then(async (serviceWorkers) => {
+                        for (var serviceWorker in serviceWorkers) {
+                            await ServiceWorker.findOne({
+                                where: {
+                                    id: serviceWorkers[serviceWorker].dataValues.id
+                                }
+                            }).then(changeServiceWorker => {
+                                changeServiceWorker.destroy();
+                            });
+                        }
+                    })
                     answer = true
                     return answer
                 };
@@ -673,7 +836,8 @@ const createNewOrder = async (userId, serviceId, descriptionValue, distanceValue
         if (!isNaN(parseInt(userId))) {
             await User.findOne({
                 where: {
-                    userId: parseInt(userId)
+                    userId: parseInt(userId),
+                    isActive:1
                 }
             }).then(async (user) => {
                 if (user == null) {
@@ -750,7 +914,10 @@ const findOrderByUser = async (userId) => {
     var ordersMas = {};
     if (userId == undefined || !isNaN(parseInt(userId))) {
         await User.findOne({
-            where: { userId: userId }
+            where: {
+                userId: userId,
+                isActive: 1
+            }
         }).then(async (user) => {
             if (user == null) {
                 ordersMas['answer'] = false;
@@ -801,7 +968,10 @@ const findServicesByWorker = async (workerId) => {
         return servicesMas
     } else {
         await Worker.findOne({
-            where: { workerId: workerId }
+            where: {
+                workerId: workerId,
+                isActive:1
+            }
         }).then(async (worker) => {
             if (worker == null) {
                 servicesMas['answer'] = false;
@@ -841,7 +1011,8 @@ const findServiceDetails = async (serviceId, workerId) => {
     } else {
         await Worker.findOne({
             where: {
-                workerId: workerId
+                workerId: workerId,
+                isActive: 1
             }
         }).then(async (worker) => {
             if (worker == null) {
@@ -900,7 +1071,8 @@ const changeServiceWorker = async (serviceId, workerId, priceValue, distanceValu
                     } else {
                         await Worker.findOne({
                             where: {
-                                workerId: parseInt(workerId)
+                                workerId: parseInt(workerId),
+                                isActive:1
                             }
                         }).then(async (worker) => {
                             if (worker == null) {
@@ -963,7 +1135,8 @@ const addServiceWorker = async (serviceIdValue, workerIdValue, priceValue, dista
         } else { 
         await Worker.findOne({
             where: {
-                workerId: parseInt(workerIdValue)
+                workerId: parseInt(workerIdValue),
+                isActive:1
             }
         })
             .then(async (worker) => {
@@ -1162,17 +1335,27 @@ const createNewChat = async (workerId, userId, orderId) => {
                     answer = false;
                     return answer
                 } else {
-                    await Worker.findByPk(workerId)
+                    await Worker.findOne({
+                        where: parseInt(workerId),
+                        isActive:1
+                    })
                         .then(async (worker) => {
-                            await User.findByPk(userId)
+                            await User.findOne({
+                                where: parseInt(userId),
+                                isActive:1
+                            })
                                 .then(async (user) => {
-                                    await Order.findByPk(orderId)
+                                    await Order.findOne({
+                                        where: { id: orderId },
+                                        isActive: 1
+                                    })
                                         .then(async (order) => {
                                             await Chat.create({
-                                                OrderId: order.dataValues.id, WorkerWorkerId: worker.dataValues.workerId,
-                                                UserUserId: user.dataValues.userId
+                                                OrderId: order.id, WorkerWorkerId: worker.workerId,
+                                                UserUserId: user.userId, isActive:1
                                             }).then(result => {
                                                 answer = result.dataValues;
+                                                return answer
                                             })
                                         });
                                 });
@@ -1210,9 +1393,9 @@ const findChat = async (orderId, workerId, userId) => {
                 } else {
                     await Chat.findOne({
                         where: {
-                            OrderId: orderId,
-                            WorkerWorkerId: workerId,
-                            UserUserId: userId
+                            OrderId: parseInt(orderId),
+                            WorkerWorkerId: parseInt(workerId),
+                            UserUserId: parseInt(userId)
                         },
                         include: {
                             model: User,
@@ -1223,8 +1406,10 @@ const findChat = async (orderId, workerId, userId) => {
                     }).then(async (result) => {
                         if (result == null) {
                             answer = false
+                            return answer
                         } else {
                             answer = result.dataValues;
+                            return answer
                         }
                     });
                 }
@@ -1251,7 +1436,8 @@ const newMessage = async (chatId, content, roleValue) => {
         } else {
             await Chat.findOne({
                 where: {
-                    id: chatId
+                    id: chatId,
+                    isActive: 1
                 }
             }).then(async (chat) => {
                 if (chat == null) {
@@ -1299,6 +1485,7 @@ const findAllMessages = async (chatId) => {
                 }
             }).then(result => {
                 answer = result
+                return answer
             });
         }
     }
@@ -1356,7 +1543,10 @@ const findUser = async (userId) => {
         } else {
             await User.findOne({
                 where:
-                    { userId: parseInt(userId) },
+                {
+                    userId: parseInt(userId),
+                    isActive: 1
+                },
                 attributes: {
                         exclude: ['email', 'password']
                     }
@@ -1391,11 +1581,11 @@ const changeOrder = async (orderId, userId, description, distance, dateValue) =>
                     if (distance == 'false') {
                         distanceValueBit = 0;
                     };
-                    console.log(distanceValueBit)
                     await Order.findOne({
                         where: {
                             id: parseInt(orderId),
-                            UserUserId: parseInt(userId)
+                            UserUserId: parseInt(userId),
+                            isActive: 1
                         }
                     })
                         .then(async (order) => {
@@ -1443,7 +1633,9 @@ const findAllOrdersByUser = async (userId) => {
         } else {
             await Order.findAll({
                 where:
-                    { UserUserId: userId },
+                {
+                    UserUserId: userId
+                },
                 include: Service
             }).then(async (result) => {
 
@@ -1476,7 +1668,8 @@ const changeOrderStatus = async (orderId, userId, status) => {
             await Order.findOne({
                 where: {
                     id: orderId,
-                    UserUserId: userId
+                    UserUserId: userId,
+                    isActive: 1
                 }
             }).then(order => {
                 if (order == null) {
@@ -1598,7 +1791,6 @@ const workerPersonalData = async (workerId) => {
                     workerId: parseInt(workerId)
                 }
             }).then(worker => {
-                console.log(worker)
                 answer = [worker.email, worker.password]
             })
         }
@@ -1653,6 +1845,91 @@ const chatPersonalData = async (chatId, role) => {
 };
 
 
+/** Верификация кода доступа пользователя. Входные значения: токен
+ * Выходные значения: true/false
+ */
+const verifyUser = async (code) => {
+    var UserToken = GodObj.userToken;
+    var User = GodObj.user;
+    var answer = ''
+    if (code == undefined) {
+        answer = false;
+        return answer
+    } else {
+        await UserToken.findOne({
+            where: {
+                token: code
+            }
+        }).then(async (userToken) => {
+            if (userToken == null) {
+                answer = false;
+                return answer
+            } else {
+                await User.findOne({
+                    where: {
+                        userId: userToken.UserUserId,
+                        isActive: 1
+                    }
+                }).then(async (user) => {
+                    if (user == null) {
+                        answer = false;
+                        return answer
+                    } else {
+                        user.confirmed = 1;
+                        user.save();
+                        userToken.destroy();
+                        answer = true;
+                        return answer
+                    }
+                });
+            }
+        })
+    }
+    return answer
+}
+
+/** Верификация кода доступа пользователя. Входные значения: токен
+ * Выходные значения: true/false
+ */
+const verifyWorker = async (code) => {
+    var WorkerToken = GodObj.workerToken;
+    var Worker = GodObj.worker;
+    var answer = ''
+    if (code == undefined) {
+        answer = false;
+        return answer
+    } else {
+        await WorkerToken.findOne({
+            where: {
+                token: code
+            }
+        }).then(async (workerTokken) => {
+            if (workerTokken == null) {
+                answer = false;
+                return answer
+            } else {
+                await Worker.findOne({
+                    where: {
+                        workerId: workerTokken.WorkerWorkerId,
+                        isActive: 1
+                    }
+                }).then(async (worker) => {
+                    if (worker == null) {
+                        answer = false;
+                        return answer
+                    } else {
+                        worker.confirmed = 1;
+                        worker.save();
+                        workerTokken.destroy();
+                        answer = true;
+                        return answer
+                    }
+                });
+            }
+        })
+    }
+    return answer
+}
 
 /** Экспорт скриптов */
 export {
@@ -1660,5 +1937,6 @@ export {
     loginWorker, createNewOrder, findOrderByUser, findServicesByWorker, findServiceDetails, changeServiceWorker,
     addServiceWorker, findAvailableOrders, orderDiscription, createNewChat, findChat, newMessage, findAllMessages,
     findAllChats, findUser, changeUser, changeWorker, findWorker, changeOrder, findAllOrdersByUser, changeOrderStatus,
-    findWorkersActiveChats, getServiceName, userPersonalData, workerPersonalData, chatPersonalData
+    findWorkersActiveChats, getServiceName, userPersonalData, workerPersonalData, chatPersonalData, verifyUser,
+    verifyWorker
 };

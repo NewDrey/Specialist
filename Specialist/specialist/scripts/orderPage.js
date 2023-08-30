@@ -11,7 +11,6 @@ request.setRequestHeader("charset", "utf-8");
  */
 request.addEventListener('load', function () {
     responseValue = JSON.parse(request.response)
-    console.log(request.response)
 
     /** Внесение полученных данных в поле заказа */
     document.getElementById('orderDescriptionHeader').innerHTML = responseValue.Service.serviceName

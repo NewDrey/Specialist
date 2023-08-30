@@ -42,13 +42,13 @@
         </ul>
 
         <div class="loginDiv">
-            <form name="loginForm">
+            <form name="loginForm" id="loginForm">
                 <h1>Вход для специалиста</h1><br />
-                <label class="inputLabelUserCabinet" for="email">Email:</label><br />
-                <input class="inputUserCabinet" type="email" id="email" name="email"><br><br>
+                <label class="inputLabelUserCabinet" for="email" >Email:</label><br />
+                <input class="inputUserCabinet" type="email" id="email" name="email" required><br><br>
                 <label class="inputLabelUserCabinet" for="password">Пароль:</label><br>
-                <input class="inputUserCabinet" type="password" id="password" name="password"><br><br>
-                <button class="loginButton" id="submit">Войти</button>
+                <input class="inputUserCabinet" type="password" id="password" name="password" required><br><br>
+                <button class="loginButton" type="submit" id="submit">Войти</button>
             </form>
         </div>
     </div>

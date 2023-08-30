@@ -3,9 +3,8 @@
     findServiceDetails, changeServiceWorker, addServiceWorker, findAvailableOrders, orderDiscription,
     createNewChat, findChat, newMessage, findAllMessages, findAllChats, findUser, changeUser,
     changeWorker, findWorker, changeOrder, findAllOrdersByUser, changeOrderStatus, findWorkersActiveChats,
-    getServiceName, userPersonalData, workerPersonalData, chatPersonalData
+    getServiceName, userPersonalData, workerPersonalData, chatPersonalData, verifyUser, verifyWorker
 } from './specialist/scripts/sqlScripts.js';
-import { mailer } from './specialist/scripts/mailer.js'
 import express from 'express';
 /*var escapeHtml = require('escape-html')*/
 const app = express();
@@ -121,6 +120,7 @@ app.route('/findMessages')
     .post(express.urlencoded({ extended: false }), async (req, res) => {
         var role = 0;
         if (req.session.user == undefined && req.session.worker == undefined) {
+            console.log(1)
             res.sendStatus(401)
         } else if (req.session.worker != undefined) {
             role = 1
@@ -134,11 +134,13 @@ app.route('/findMessages')
                                 if (result == false) {
                                     res.sendStatus(501)
                                 } else {
+                                    console.log(2)
                                     res.status(200);
                                     res.send(result)
                                 }
                             });
                     } else {
+                        console.log(3)
                         res.sendStatus(401)
                     }
                 });
@@ -185,13 +187,12 @@ app.route('/newMessage')
                     if (access) {
                         await findAllMessages(req.body.chatId)
                             .then(result => {
-                                if (result == false) {
+                                if (result == false && typeof (result) != 'object') {
                                     res.sendStatus(501)
                                 } else {
-                                    res.status(200);
                                     newMessage(req.body.chatId, req.body.messageContent, req.body.role)
                                         .then(result => {
-                                            if (result == false) {
+                                            if (result == false && result) {
                                                 res.sendStatus(501)
                                             } else {
                                                 io.to(req.body.chatId).emit('message', req.body.messageContent, req.body.role);
@@ -215,7 +216,7 @@ app.route('/newMessage')
                     if (access) {
                         await findAllMessages(req.body.chatId)
                             .then(result => {
-                                if (result == false) {
+                                if (result == false && typeof(result) != 'object') {
                                     res.sendStatus(501)
                                 } else {
                                     res.status(200);
@@ -252,19 +253,24 @@ app.route('/orderChats')
             await findChat(req.body.orderId, req.session.worker[2], req.body.userId)
                 .then(async (result) => {
                     answer = result;
+                    console.log(answer)
                     if (result == false) {
-                        await createNewChat(req.body.workerId, req.body.userId, req.body.orderId)
+                        await createNewChat(req.session.worker[2], req.body.userId, req.body.orderId)
                             .then(chat => {
                                 answer = chat;
+                                if (answer == false) {
+                                    res.sendStatus(501)
+                                } else {
+                                    res.status(200);
+                                    res.send(answer);
+                                }
                             })
+                    } else {
+                        res.status(200);
+                        res.send(result)
                     }
                 });
-            if (answer == false) {
-                res.sendStatus(501)
-            } else {
-                res.status(200);
-                res.send(answer);
-            }
+            
         }
     }); 
 
@@ -289,7 +295,6 @@ app.route('/workers_reg')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
 
             var str = req.body.services.split(',')
-            mailer(req.body.email)
             await registerWorker(req.body.email, req.body.password, req.body.name, req.body.surname, req.body.phone, req.body.city, str)
                 .then(result => {
                     if (result == 'already exists') {
@@ -700,7 +705,8 @@ app.route('/availableOrders')
 
 app.route('/availableOrderDescription')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        if (req.session.user == undefined) {
+        if (req.session.worker == undefined && req.session.user == undefined) {
+            
             res.sendStatus(401)
         } else {
             await orderDiscription(req.body.orderId).then(result => {
@@ -719,7 +725,6 @@ app.route('/changeOrder')
         if (req.session.user == undefined) {
             res.sendStatus(401)
         } else {
-            console.log(req.body.distance)
             await changeOrder(req.body.orderId, req.session.user[2], req.body.description, req.body.distance, req.body.date)
                 .then(result => {
                     if (result == true) {
@@ -734,13 +739,13 @@ app.route('/changeOrder')
 
 
 app.get('/deleteWorker', async function (req, res) {
-    if (req.session.user == undefined) {
+    if (req.session.worker == undefined) {
         res.sendStatus(401)
     } else {
         await deleteWorker(req.session.worker[2])
             .then(result => {
                 if (result == true) {
-                    req.session.workerEmail = null;
+                    req.session.worker = null;
                     res.status(200);
                     res.redirect('/');
                 } else {
@@ -758,16 +763,13 @@ app.route('/reg')
         res.sendFile(path.join(__dirname, 'specialist/ru/reg.html'));
     })
     .post(jsonParser, async function (req, res) {
-        /*mailer(req.body.email)
-        if (err) { console.log(err) }
-        else {*/
-            var answer = await registerUser(req.body.email, req.body.password);
-            if (answer == true) {
-                res.sendStatus(200)
-            } else {
-                res.sendStatus(401)
-            }
-       /* }*/
+        var answer = await registerUser(req.body.email, req.body.password);
+        if (answer == true) {
+            res.sendStatus(200)
+        } else {
+            res.sendStatus(401)
+
+        }
     });
 
 app.get('/', (req, res) => {
@@ -795,6 +797,27 @@ app.post('/changeWorker', express.urlencoded({ extended: false }), async functio
             })
     }
     
+})
+
+app.get('/confirmationUser/:token', async (req, res) => {
+
+    await verifyUser(req.params.token).then(result => {
+        if (result == true) {
+            res.redirect('/login')
+        } else {
+            res.sendStatus(500)
+        }
+    })
+})
+
+app.get('/confirmationWorker/:token', async (req, res) => {
+    await verifyWorker(req.params.token).then(result => {
+        if (result == true) {
+            res.redirect('/workers_log')
+        } else {
+            res.sendStatus(500)
+        }
+    })
 })
  
 app.get('/cities', (req, res) => {

@@ -1,13 +1,13 @@
 ﻿/** Скрипты для страницы ваторизации специалисьа */
 
 /** Присвоение действия кнопки логина (авторизация специлиста) */
-document.getElementById('submit').addEventListener('click', function (e) {
+document.getElementById('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     /** Получение данных формы авторизации специлиста */
     let loginForm = document.forms['loginForm'];
-    let email = loginForm.elements['email'].value
-    let password = loginForm.elements['password'].value
+    let email = document.getElementById('email').value
+    let password = document.getElementById('password').value
 
     /** Запрос на аутенфикацию специлиста */
     let worker = String("email=" + email + "&password=" + password);

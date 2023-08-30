@@ -14,6 +14,7 @@
   "eslintConfig": {},
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "crypto-js": "^4.1.1",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "imask": "^7.1.3",
