@@ -11,6 +11,7 @@ request.setRequestHeader("charset", "utf-8");
  */
 request.addEventListener('load', function () {
     responseValue = JSON.parse(request.response)
+    console.log(request.response)
 
     /** Внесение полученных данных в поле заказа */
     document.getElementById('orderDescriptionHeader').innerHTML = responseValue.Service.serviceName
@@ -117,7 +118,7 @@ buttonGroup.addEventListener("click", buttonGroupPressed);
 /** Запрос на все прошлые сообщения в чате*/
 function getMessages(chatId) {
     var request = new XMLHttpRequest();
-    request.open('POST', '/findMassages', true)
+    request.open('POST', '/findMessages', true)
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader("charset", "utf-8")
     request.addEventListener('load', () => {
@@ -242,7 +243,8 @@ document.getElementById('checkDate').addEventListener('change', (e) => {
 })
 
 /** Запрос на изменение заказа от пользователя*/
-document.getElementById('changeOrder').addEventListener('click', () => {
+document.getElementById('orderDescription').addEventListener('submit', (e) => {
+    e.preventDefault();
     var request = new XMLHttpRequest
     var dateValue = ''
     if (document.getElementById('dateField').disabled == true) {

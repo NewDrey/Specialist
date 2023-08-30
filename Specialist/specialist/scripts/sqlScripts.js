@@ -4,6 +4,7 @@ import { Sequelize, INTEGER } from 'sequelize';
 var GodObj = {};
 import  fs from 'fs';
 import * as sequelize from 'sequelize';
+import bcrypt from 'bcrypt'
 /*import values from "../ru/values.json");*/
 
 
@@ -52,6 +53,10 @@ const sqlConnect = () => {
             type: Sequelize.TEXT,
             allowNull: true
         },
+        confirmed: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false
+        }
     },
         {
             tablename: 'dbo.Users'
@@ -169,7 +174,7 @@ const sqlConnect = () => {
         },
         date: {
             type: Sequelize.TEXT,
-            allowNull: false
+            allowNull: true
         },
         isActive: {
             type: Sequelize.BOOLEAN,
@@ -265,7 +270,7 @@ const registerUser = async (email_str, password_str) => {
     await User.findOne({ where: { email: email_str } })
         .then(async (user) => {
             if (user == null) {
-                await User.create({ email: email_str, password: password_str });
+                await User.create({ email: email_str, password: password_str, confirmed: 0 });
                 answer = true;
             } else {
                 answer = false;
@@ -278,6 +283,7 @@ const registerUser = async (email_str, password_str) => {
  * Выходные значения: true / false
  */
 const loginUser = async (email_str, password_str) => {
+    
     var answer = [];
     if (email_str == undefined || password_str == undefined) {
         answer.push(false);
@@ -285,17 +291,22 @@ const loginUser = async (email_str, password_str) => {
     };
     var User = GodObj.user;
         await User.findOne({ where: { email: email_str } })
-            .then(user => {
+            .then(async (user) => {
             if (user == null) {
                 answer.push(false, null);
             } else {
-                if (user.password.trim() == password_str.trim()) {
-                    answer.push(true, user.userId, user.name, user.phone);
-                } else {
-                    answer.push(false, null);
+
+                    if (password_str == user.password ) {
+                        answer.push(true, user.userId, user.name, user.phone);
+                        return
+                    } else {
+                        answer.push(false, null);
+                        return
+                    }
+                
                 };
-               };
             }).catch(err => console.log(err));
+
     return answer
 };
 
@@ -310,17 +321,20 @@ const loginWorker = async (email_str, password_str) => {
         return
     };
     await Worker.findOne({ where: { email: email_str } })
-        .then(worker => {
+        .then(async (worker) => {
             if (worker == null) {
                 answer.push(false, null)
             } else {
-                if (worker.password.trim() == password_str.trim()) {
-                    answer.push(true, worker.workerId, worker.name, worker.phone)
-                } else {
-                    answer.push(false, null)
-                }
+                    if (password_str == worker.password) {
+                        answer.push(true, worker.workerId, worker.name, worker.phone);
+                        return
+                    } else {
+                        answer.push(false, null);
+                        return
+                    }
             }
-            }).catch(err => console.log(err));
+        
+        }).catch(err => console.log(err));
     return answer
 }; 
 
@@ -426,7 +440,7 @@ const registerWorker = async (email_str, password_str, name_str, surname_str, ph
 const changeUser = async (userIdValue, columnName, value) => {
     var User = GodObj.user;
     var answer = '';
-    if (workerIdValue == undefined || columnName == undefined || value == undefined) {
+    if (userIdValue == undefined || columnName == undefined || value == undefined) {
         answer = false;
         return
     };
@@ -549,16 +563,16 @@ const findWorker = async (workerId) => {
 /** Скрипт изменения даных работника входят значения: email пользователя 
  * Выходные значения: true / error
  */
-const deleteUser = async (email) => {
+const deleteUser = async (id) => {
     var User = GodObj.user;
     var answer = ''
-    if (email == undefined) {
+    if (id == undefined) {
         answer = false
         return answer
     } else {
         await User.findOne({
             where: {
-                email: email
+                userId: id
             }
         }).then(async (user) => {
             if (user == null) {
@@ -577,27 +591,33 @@ const deleteUser = async (email) => {
 /** Скрипт изменения даных работника входят значения: email работника 
  * Выходные значения: true / error
  */
-const deleteWorker = async (email) => {
+const deleteWorker = async (id) => {
     var Worker = GodObj.worker;
     var answer = ''
-    if (email == undefined) {
+    if (id == undefined) {
         answer = false;
         return answer
     } else {
-        await Worker.findOne({
-            where: {
-                email: email
-            }
-        }).then(async (worker) => {
-            if (worker == null) {
-                answer = false
-                return answer
-            } else {
-                await worker.destroy();
-                answer = true
-                return answer
-            };
-        });
+        if (isNaN(parseInt(id))) {
+            answer = false;
+            return answer
+        } else {
+
+            await Worker.findOne({
+                where: {
+                    workerId: id
+                }
+            }).then(async (worker) => {
+                if (worker == null) {
+                    answer = false
+                    return answer
+                } else {
+                    await worker.destroy();
+                    answer = true
+                    return answer
+                };
+            });
+        }
     };
     return answer
 };
@@ -641,7 +661,6 @@ const getServicesList = async () => {
  */
 const createNewOrder = async (userId, serviceId, descriptionValue, distanceValue, dateValue, cityValue) => {
     var answer = ''
-    console.log(userId, serviceId, descriptionValue, distanceValue, dateValue, cityValue)
     if (userId == undefined || serviceId == undefined || descriptionValue == undefined || distanceValue == undefined ||
         dateValue == undefined || cityValue == undefined) {
         answer = false;
@@ -1290,7 +1309,7 @@ const findAllMessages = async (chatId) => {
  * Выходгные значения: список чатов - id чата, id пользователя, id заказа, id работника, имя работника, фамилия работника.
  * телефон работника, город работника
  */
-const findAllChats = async (orderId) => {
+const findAllChats = async (orderId, userId) => {
     var Chat = GodObj.chat
     var Worker = GodObj.worker
     var answer = ''
@@ -1304,7 +1323,8 @@ const findAllChats = async (orderId) => {
         } else {
             await Chat.findAll({
                 where: {
-                    OrderId: orderId
+                    OrderId: orderId,
+                    UserUserId: userId
                 },
                 include: {
                     model: Worker,
@@ -1352,10 +1372,11 @@ const findUser = async (userId) => {
 /** Скрипт изменения заказ. Входные значения: id заказа, описание, статус дистанционной работы, дата выполнения
  * выходные значения: true / false
  */
-const changeOrder = async (orderId, description, distance, date) => {
+const changeOrder = async (orderId, userId, description, distance, dateValue) => {
     var Order = GodObj.order;
-    answer = '';
-    if (orderId == undefined || description == undefined || distance == undefined || date == undefined) {
+    var User = GodObj.user;
+    var answer = '';
+    if (orderId == undefined || description == undefined || distance == undefined || dateValue == undefined) {
         answer = false;
         return answer
     } else {
@@ -1363,21 +1384,32 @@ const changeOrder = async (orderId, description, distance, date) => {
             answer = false;
             return answer
         } else {
-            if (dateValue == 'true' || dateValue == 'false' ||
+          if (dateValue == 'true' || dateValue == 'false' ||
                 (!isNaN(Date.parse(dateValue)) && Date.parse(dateValue) > Date.now())) {
-                if (parseInt(distance) == 1 || parseInt(distance) == 0) {
+                if (distance == 'true' || distance == 'false') {
                     var distanceValueBit = 1;
-                    if (distanceValue == 'false') {
+                    if (distance == 'false') {
                         distanceValueBit = 0;
                     };
-                    await Order.findOne({ where: { id: orderId } })
+                    console.log(distanceValueBit)
+                    await Order.findOne({
+                        where: {
+                            id: parseInt(orderId),
+                            UserUserId: parseInt(userId)
+                        }
+                    })
                         .then(async (order) => {
-                            order.description = description;
-                            order.date = date;
-                            order.distance = distanceValueBit
-                            order.save();
-                            answer = true
-                            return answer
+                            if (order == null) {
+                                answer = false
+                                return answer
+                            } else {
+                                order.description = description;
+                                order.date = dateValue;
+                                order.distance = distanceValueBit
+                                order.save();
+                                answer = true
+                                return answer
+                            }
                         });
                 } else {
                     answer = false
@@ -1429,8 +1461,9 @@ const findAllOrdersByUser = async (userId) => {
 /** Скрипт изменения статуса заказа. Входные значения; id заказа, статус заказа
  * Выходные значения: true / error
  */
-const changeOrderStatus = async (orderId, status) => {
+const changeOrderStatus = async (orderId, userId, status) => {
     var Order = GodObj.order
+    var User = GodObj.user;
     var answer = ''
     if (orderId == undefined || status == undefined) {
         answer == false;
@@ -1442,7 +1475,8 @@ const changeOrderStatus = async (orderId, status) => {
         } else {
             await Order.findOne({
                 where: {
-                    id: orderId
+                    id: orderId,
+                    UserUserId: userId
                 }
             }).then(order => {
                 if (order == null) {
@@ -1507,7 +1541,7 @@ const findWorkersActiveChats = async (workerId) => {
 const getServiceName = async (serviceId) => {
     var Service = GodObj.service;
     var answer = '';
-    if (workerId == undefined) {
+    if (serviceId == undefined) {
         answer = false;
         return answer
     } else {
@@ -1524,11 +1558,107 @@ const getServiceName = async (serviceId) => {
     return answer
 }
 
+const userPersonalData = async(userId) => {
+    const User = GodObj.user;
+    var answer = '';
+    if (userId == undefined) {
+        answer = false;
+        return answer
+    } else {
+        if (isNaN(parseInt(userId))) {
+            answer = false;
+            return answer
+        } else {
+            await User.findOne({
+                where: {
+                    userId: parseInt(userId)
+                }
+            }).then(user => {
+                answer = [user.email, user.password]
+            })
+        }
+    }
+    return answer
+}
+
+
+const workerPersonalData = async (workerId) => {
+    const Worker = GodObj.worker;
+    var answer = '';
+    if (workerId == undefined) {
+        answer = false;
+        return answer
+    } else {
+        if (isNaN(parseInt(workerId))) {
+            answer = false;
+            return answer
+        } else {
+            await Worker.findOne({
+                where: {
+                    workerId: parseInt(workerId)
+                }
+            }).then(worker => {
+                console.log(worker)
+                answer = [worker.email, worker.password]
+            })
+        }
+    }
+    return answer
+}
+
+
+
+const chatPersonalData = async (chatId, role) => {
+    const Chat = GodObj.chat;
+    const User = GodObj.user;
+    const Worker = GodObj.worker;
+    var answer = '';
+    var roleBit = ''
+
+    if (chatId == undefined || role == undefined) {
+        answer = false;
+        return answer
+    } else {
+        if (isNaN(parseInt(chatId))) {
+            answer = false;
+            return answer
+        } else {
+            if (isNaN(parseInt(role))) {
+                answer = false;
+                return answer
+            } else {
+                if (parseInt(role) == 0) {
+                    roleBit = User
+                } else {
+                    roleBit = Worker
+                }
+                await Chat.findOne({
+                    where: {
+                        id: parseInt(chatId)
+                    }, include: [roleBit]
+                }).then(chat => {
+                    if (role == 0) {
+                        answer = chat.User.userId
+                        return chat
+                    } else {
+                        answer = chat.Worker.workerId
+                        return chat
+                    }
+                    
+                })
+            }
+        }
+    }
+    return answer
+};
+
+
+
 /** Экспорт скриптов */
 export {
     sqlConnect, registerUser, loginUser, registerWorker, deleteUser, deleteWorker, getServicesList,
     loginWorker, createNewOrder, findOrderByUser, findServicesByWorker, findServiceDetails, changeServiceWorker,
     addServiceWorker, findAvailableOrders, orderDiscription, createNewChat, findChat, newMessage, findAllMessages,
     findAllChats, findUser, changeUser, changeWorker, findWorker, changeOrder, findAllOrdersByUser, changeOrderStatus,
-    findWorkersActiveChats, getServiceName
+    findWorkersActiveChats, getServiceName, userPersonalData, workerPersonalData, chatPersonalData
 };

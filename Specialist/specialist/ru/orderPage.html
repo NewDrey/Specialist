@@ -45,22 +45,23 @@
         <div id="field" class="ui_userData">
             <div class="chatAreaUser" id="chatField"></div>
         </div>
-
-        <div id="orderDescriptionField" class="ui_userData">
-            <div class="orderDescriptionUser" id="orderDescription">
-                <h2 id="orderDescriptionHeader"></h2>
-                <textarea name="descriptionField" id="descriptionField" class="newOrderTextArea" rows="4" cols="50" placeholder="Опишите свой заказ подробнее"></textarea><br /><br />
-                <input type="date" name="dateField" id="dateField" class="newOrderDate" /><br /><br />
-                <label for="checkData" class="newOrderValue">По договоренности с исполнителем</label>
-                <input type="checkbox" id="checkDate" class="newOrderCheck" /><br /><br />
-                <label for="checkDistance" class="newOrderValue">Работу можно выполнить дистанционно</label>
-                <input type="checkbox" id="checkDistance" name="newOrderDistance" class="newOrderCheck" /><br /><br />
-                <button id="changeOrder" class="loginButton">Изменить</button>
-                <button id="closeOrder" class="changeStatusButton">Закрыть заказ</button>
-                <button id="restartOrder" class="changeStatusButton">Возобновить заказ</button>
-                <a id="orderComment" class="commentText"></a>
+        <form id="orderDescription">
+            <div id="orderDescriptionField" class="ui_userData">
+                <div class="orderDescriptionUser" id="orderDescription">
+                    <h2 id="orderDescriptionHeader"></h2>
+                    <textarea name="descriptionField" id="descriptionField" class="newOrderTextArea" rows="4" cols="50" placeholder="Опишите свой заказ подробнее" required></textarea><br /><br />
+                    <input type="date" name="dateField" id="dateField" class="newOrderDate" required /><br /><br />
+                    <label for="checkData" class="newOrderValue">По договоренности с исполнителем</label>
+                    <input type="checkbox" id="checkDate" class="newOrderCheck" /><br /><br />
+                    <label for="checkDistance" class="newOrderValue">Работу можно выполнить дистанционно</label>
+                    <input type="checkbox" id="checkDistance" name="newOrderDistance" class="newOrderCheck" /><br /><br />
+                    <button id="changeOrder" type="submit" class="loginButton">Изменить</button>
+                    <button id="closeOrder" class="changeStatusButton">Закрыть заказ</button>
+                    <button id="restartOrder" class="changeStatusButton">Возобновить заказ</button>
+                    <a id="orderComment" class="commentText"></a>
+                </div>
             </div>
-        </div>
+        </form>
 
 
     </div>

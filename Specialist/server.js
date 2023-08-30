@@ -3,8 +3,9 @@
     findServiceDetails, changeServiceWorker, addServiceWorker, findAvailableOrders, orderDiscription,
     createNewChat, findChat, newMessage, findAllMessages, findAllChats, findUser, changeUser,
     changeWorker, findWorker, changeOrder, findAllOrdersByUser, changeOrderStatus, findWorkersActiveChats,
-    getServiceName
+    getServiceName, userPersonalData, workerPersonalData, chatPersonalData
 } from './specialist/scripts/sqlScripts.js';
+import { mailer } from './specialist/scripts/mailer.js'
 import express from 'express';
 /*var escapeHtml = require('escape-html')*/
 const app = express();
@@ -17,6 +18,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { createServer } from "http";
 import { Server } from 'socket.io';
+import bcrypt from 'bcrypt'
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -34,21 +36,68 @@ app.use(
     }));
 
 const isAuthenticatedWorker = (req, res) => {
-    if (req.session.workerEmail) {
+    if (req.session.worker) {
         var result = true;
+        console.log(req.session)
     } else {
         var result = false;
     }
     return result
 }
 const isAuthenticated = (req, res) => {
-    if (req.session.email) {
+    if (req.session.user) {
+        console.log(req.session)
         var result = true;
     } else {
         var result = false;
     }
     return result
 };
+
+const isAvailableDataUser = async (userId, req) => {
+    var answer = ''
+    await userPersonalData(userId).then(async (result) => {
+        var emailBit = '';
+        var passwordBit = '';
+        await bcrypt.compare(result[0], req.session.user[0]).then(result => {
+            emailBit = result
+        })
+        await bcrypt.compare(result[1], req.session.user[1]).then(result => {
+            passwordBit = result
+        })
+
+        if (emailBit && passwordBit) {
+            answer = true;
+            return answer
+        } else {
+            answer = false;
+            return answer
+        }
+    })
+    return answer
+};
+
+const isAvailableDataWorker = async (workerId, req) => {
+    var answer = ''
+    await workerPersonalData(workerId).then(async (result) => {
+        var emailBit = '';
+        var passwordBit = '';
+        await bcrypt.compare(result[0], req.session.worker[0]).then(async (result) => {
+            emailBit = result
+        })
+        await bcrypt.compare(result[1], req.session.worker[1]).then(async (result) => {
+            passwordBit = result
+        })
+        if (emailBit && passwordBit) {
+            answer = true;
+            return answer
+        } else {
+            answer = false;
+            return answer
+        }
+    })
+    return answer
+}
 
 
 io.on('connection', (socket) => {
@@ -67,36 +116,126 @@ io.sockets.on('connection', function (socket) {
     })
 }); 
 
-app.route('/findMassages')
+app.route('/findMessages')
+
     .post(express.urlencoded({ extended: false }), async (req, res) => {
-        /**!!!!!!! Уязвимость, в теории залогинившись на сайте можно получить все пароли через http запрос, 
-         * надо исправить !!!!!!!!*/
-        if (isAuthenticated(req, res) == true || isAuthenticatedWorker(req, res) == true) {
-            findAllMessages(req.body.chatId)
-                .then(result => {
-                    if (result == false) {
-                        res.sendStatus(501)
+        var role = 0;
+        if (req.session.user == undefined && req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else if (req.session.worker != undefined) {
+            role = 1
+            await chatPersonalData(req.body.chatId, role).then(async (workerId) => {
+                var access = ''
+                await isAvailableDataWorker(workerId, req).then(async (result) => {
+                    access = result
+                    if (access) {
+                        await findAllMessages(req.body.chatId)
+                            .then(result => {
+                                if (result == false) {
+                                    res.sendStatus(501)
+                                } else {
+                                    res.status(200);
+                                    res.send(result)
+                                }
+                            });
                     } else {
-                        res.status(200);
-                        res.send(result)
+                        res.sendStatus(401)
                     }
                 });
-        } else {
-            res.sendStatus(401)
+            });
+            
+        } else if ((req.session.user != undefined)) {
+            await chatPersonalData(req.body.chatId, role).then(async (userId) => {
+                var access = '';
+                await isAvailableDataUser(userId, req).then(async (result) => {
+                    
+                    access = result
+                    if (access) {
+                        await findAllMessages(req.body.chatId)
+                            .then(result => {
+                                if (result == false) {
+                                    res.sendStatus(501)
+                                } else {
+                                    res.status(200);
+                                    res.send(result)
+                                }
+                            });
+                    } else {
+                        res.sendStatus(401)
+                    }
+                })
+
+                
+            });
         }
     });
 
+
 app.route('/newMessage')
     .post(express.urlencoded({ extended: false }), async (req, res) => {
-        newMessage(req.body.chatId, req.body.messageContent, req.body.role)
-            .then(result => {
-                if (result == false) {
-                    res.sendStatus(501)
-                } else {
-                    io.to(req.body.chatId).emit('message', req.body.messageContent, req.body.role);
-                    res.sendStatus(200);
-                }
-            })
+        var role = 0;
+        if (req.session.user == undefined && req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else if (req.session.worker != undefined) {
+            role = 1
+            await chatPersonalData(req.body.chatId, role).then(async (workerId) => {
+                var access = ''
+                await isAvailableDataWorker(workerId, req).then(async (result) => {
+                    access = result
+                    if (access) {
+                        await findAllMessages(req.body.chatId)
+                            .then(result => {
+                                if (result == false) {
+                                    res.sendStatus(501)
+                                } else {
+                                    res.status(200);
+                                    newMessage(req.body.chatId, req.body.messageContent, req.body.role)
+                                        .then(result => {
+                                            if (result == false) {
+                                                res.sendStatus(501)
+                                            } else {
+                                                io.to(req.body.chatId).emit('message', req.body.messageContent, req.body.role);
+                                                res.sendStatus(200);
+                                            }
+                                        })
+                                }
+                            });
+                    } else {
+                        res.sendStatus(401)
+                    }
+                });
+            });
+
+        } else if ((req.session.user != undefined)) {
+            await chatPersonalData(req.body.chatId, role).then(async (userId) => {
+                var access = '';
+                await isAvailableDataUser(userId, req).then(async (result) => {
+
+                    access = result
+                    if (access) {
+                        await findAllMessages(req.body.chatId)
+                            .then(result => {
+                                if (result == false) {
+                                    res.sendStatus(501)
+                                } else {
+                                    res.status(200);
+                                    newMessage(req.body.chatId, req.body.messageContent, req.body.role)
+                                        .then(result => {
+                                            if (result == false) {
+                                                res.sendStatus(501)
+                                            } else {
+                                                io.to(req.body.chatId).emit('message', req.body.messageContent, req.body.role);
+                                                res.sendStatus(200);
+                                            }
+                                        })
+                                }
+                            });
+                    } else {
+                        res.sendStatus(401)
+                    }
+                });
+            });
+        }
     });
 
 
@@ -106,33 +245,40 @@ app.route('/orderChats')
         res.sendFile(path.join(__dirname, 'specialist/ru/chatOrder.html'));
     })
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        var answer = ''
-        await findChat(req.body.orderId, req.body.workerId, req.body.userId)
-            .then(async (result) => {
-                answer = result;
-                if (result == false) {
-                    await createNewChat(req.body.workerId, req.body.userId, req.body.orderId)
-                        .then(chat => {
-                            console.log(chat)
-                            answer = chat;
-                        })
-                } 
-            });
-        if (answer == false) {
-            res.sendStatus(501)
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
         } else {
-            res.status(200);
-            res.send(answer);
+            var answer = ''
+            await findChat(req.body.orderId, req.session.worker[2], req.body.userId)
+                .then(async (result) => {
+                    answer = result;
+                    if (result == false) {
+                        await createNewChat(req.body.workerId, req.body.userId, req.body.orderId)
+                            .then(chat => {
+                                answer = chat;
+                            })
+                    }
+                });
+            if (answer == false) {
+                res.sendStatus(501)
+            } else {
+                res.status(200);
+                res.send(answer);
+            }
         }
     }); 
 
     
 app.route('/userChats')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await findAllChats(req.body.orderId).then(result => {
-            res.status(200);
-            res.send(result)
-        })
+        if (req.session.user == undefined) {
+            res.sendStatus(401)
+        } else {
+            await findAllChats(req.body.orderId, req.session.user[2]).then(result => {
+                res.status(200);
+                res.send(result)
+            })
+        }
     })
 
 app.route('/workers_reg')
@@ -141,17 +287,20 @@ app.route('/workers_reg')
         res.sendFile(path.join(__dirname, 'specialist/ru/workers_reg.html'));
     })
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        var str = req.body.services.split(',')
-        await registerWorker(req.body.email, req.body.password, req.body.name, req.body.surname, req.body.phone, req.body.city, str)
-            .then(result => {
-                if (result == 'already exists') {
-                    res.sendStatus(403);
-                } else if (result == false) {
-                    res.sendStatus(501);
-                } else {
-                    res.sendStatus(200);
-                }
-            });
+
+            var str = req.body.services.split(',')
+            mailer(req.body.email)
+            await registerWorker(req.body.email, req.body.password, req.body.name, req.body.surname, req.body.phone, req.body.city, str)
+                .then(result => {
+                    if (result == 'already exists') {
+                        res.sendStatus(403);
+                    } else if (result == false) {
+                        res.sendStatus(501);
+                    } else {
+                        res.sendStatus(200);
+                    }
+
+        })
     });
     
 
@@ -177,9 +326,18 @@ app.route('/workers_log')
                 workerName: result[2],
                 workerPhone: result[3],
             }
-            req.session.regenerate(function (err) {
+            req.session.regenerate(async function (err) {
                 if (err) next(err)
-                req.session.workerEmail = req.body.email
+                var hashWorker = []
+                await bcrypt.hash(req.body.email, 10).then(answer => {
+                    hashWorker.push(answer)
+                });
+                await bcrypt.hash(req.body.password, 10).then(answer => {
+                    hashWorker.push(answer)
+                    hashWorker.push(result[1])
+                });
+
+                req.session.worker = hashWorker
                 req.session.save(function (err) {
                     if (err) return next(err);
                     res.status(200);
@@ -213,9 +371,18 @@ app.route('/login')
                 userName: result[2],
                 userPhone: result[3],
             }
-            req.session.regenerate(function (err) {
-                if (err) next (err)
-                req.session.email = req.body.email;
+            req.session.regenerate(async function (err) {
+                if (err) next(err)
+                var hashUser = []
+                await bcrypt.hash(req.body.email, 10).then(answer => {
+                    hashUser.push(answer)
+                });
+                await bcrypt.hash(req.body.password, 10).then(answer => {
+                    hashUser.push(answer)
+                    hashUser.push(result[1])
+                });
+
+                req.session.user = hashUser
                 req.session.save(function (err) {
                     if (err) return next(err);
                     
@@ -231,18 +398,22 @@ app.route('/login')
     });
 
 app.post('/changeUser', express.urlencoded({ extended: false }), async function (req, res) {
-    await changeUser(req.body.userId, req.body.columnName, req.body.value).then(result => {
-        if (result == true) {
-            res.sendStatus(200);
-        } else {
-            res.sendStatus(501);
-        };
-    });
+    if (req.session.user == undefined) {
+        res.sendStatus(401)
+    } else {
+        await changeUser(req.session.user[2], req.body.columnName, req.body.value).then(result => {
+            if (result == true) {
+                res.sendStatus(200);
+            } else {
+                res.sendStatus(501);
+            };
+        });
+    }
 });
 
 app.get('/logout', function (req, res, next) {
-    req.session.email = null;
-    req.session.workerEmail = null;
+    req.session.user = null;
+    req.session.worker = null;
     req.session.save(function (err) {
         if (err) next(err);
         req.session.regenerate(function (err) {
@@ -254,16 +425,20 @@ app.get('/logout', function (req, res, next) {
 
 
 app.get('/deleteUser', async function (req, res) {
-    await deleteUser(req.session.email)
-        .then(result => {
-            if (result == true) {
-                req.session.email = null;
-                res.status(200);
-                res.redirect('/');
-            } else {
-                res.sendStatus(401);
-            };
-        });
+    if (req.session.user == undefined) {
+        res.sendStatus(401)
+    } else {
+        await deleteUser(req.session.user[2])
+            .then(result => {
+                if (result == true) {
+                    req.session.user = null;
+                    res.status(200);
+                    res.redirect('/');
+                } else {
+                    res.sendStatus(401);
+                };
+            });
+    }
 });
 
 
@@ -289,7 +464,7 @@ app.route('/createOrder')
         res.sendFile(path.join(__dirname, 'specialist/ru/log.html'));
     })
     .post(express.urlencoded({ extended: false }), function (req, res) {
-        createNewOrder(req.body.userId, req.body.serviceId,
+        createNewOrder(req.session.user[2], req.body.serviceId,
             req.body.description, req.body.distance, req.body.date, req.body.city)
             .then(result => {
                 if (result == true) {
@@ -303,67 +478,90 @@ app.route('/createOrder')
 
 app.route('/userInfo')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await findUser(req.body.userId).then(result => {
-            if (result == false) {
-                res.sendStatus(501);
-            } else {
-                res.status(200);
-                res.setHeader("Content-Type", "text/json");
-                res.send(result.dataValues);
-            }
-        });
+        if (req.session.user == undefined) {
+            res.sendStatus(401)
+        } else { 
+            await findUser(req.session.user[2]).then(result => {
+                if (result == false) {
+                    res.sendStatus(501);
+                } else {
+                    res.status(200);
+                    res.setHeader("Content-Type", "text/json");
+                    res.send(result.dataValues);
+                }
+            });
+        }
     });
 
 
 app.route('/workerInfo')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await findWorker(req.body.workerId).then(result => {
-            if (result == false) {
-                res.sendStatus(501)
-            } else {
-                res.status(200);
-                res.setHeader("Content-Type", "text/json")
-                res.send(result)
-            };
-        });
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else { 
+            await findWorker(req.session.worker[2]).then(result => {
+                if (result == false) {
+                    res.sendStatus(501)
+                } else {
+                    res.status(200);
+                    res.setHeader("Content-Type", "text/json")
+                    res.send(result)
+                };
+            });
+        }
     });
 
 app.route('/userCabinetOrders')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        var result = await findOrderByUser(parseInt(req.body.userId));
-        if (result['answer'] == false) {
-            res.sendStatus(501)
+        if (req.session.user == undefined) {
+            res.sendStatus(401)
         } else {
-            res.status(200);
-            res.send(result);
+            var result = await findOrderByUser(parseInt(req.session.user[2]));
+            if (result['answer'] == false) {
+                res.sendStatus(501)
+            } else {
+                res.status(200);
+                res.send(result);
+            }
         }
     });
 
 app.route('/findAllOrdersByUser')
     .get(function (req, res) {
-        res.status(200);
-        res.setHeader('Content-Type', 'text/html');
-        res.sendFile(path.join(__dirname, 'specialist/ru/usersOrders.html'));
+        if (req.session.user == undefined) {
+            res.sendStatus(401)
+        } else {
+            res.status(200);
+            res.setHeader('Content-Type', 'text/html');
+            res.sendFile(path.join(__dirname, 'specialist/ru/usersOrders.html'));
+        }
     })
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await findAllOrdersByUser(parseInt(req.body.userId))
-            .then(result => {
-               
-                res.status(200);
-                res.send(result);
-            });
+        if (req.session.user == undefined) {
+            res.sendStatus(401)
+        } else {
+            await findAllOrdersByUser(parseInt(req.session.user[2]))
+                .then(result => {
+                    res.status(200);
+                    res.send(result);
+                });
+        }
     });
     
 app.route('/orderPage')
     .get(async function (req, res) {
-        res.status(200)
-        res.setHeader('Content-Type', 'text/html')
-        res.sendFile(path.join(__dirname, 'specialist/ru/orderPage.html'));
+        if (req.session.user == undefined) {
+            res.sendStatus(401)
+        } else {
+            res.status(200)
+            res.setHeader('Content-Type', 'text/html')
+            res.sendFile(path.join(__dirname, 'specialist/ru/orderPage.html'));
+        }
     })
 
 app.route('/changeOrderStatus')
     .post(express.urlencoded({ extended: false }),  async function (req, res) {
-        changeOrderStatus(req.body.orderId, req.body.status).then(result => {
+        changeOrderStatus(req.body.orderId, req.session.user[2], req.body.status).then(result => {
             if (result == true) {
                 res.sendStatus(200);
             } else {
@@ -374,15 +572,19 @@ app.route('/changeOrderStatus')
 
 app.route('/workerCabinetServices')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        findServicesByWorker(req.body.workerId)
-            .then(result => {
-                if (result['answer'] === false) {
-                    res.sendStatus(501);
-                } else {
-                    res.status(200);
-                    res.send(result);
-                };                
-            });
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else {
+            findServicesByWorker(req.session.worker[2])
+                .then(result => {
+                    if (result['answer'] === false) {
+                        res.sendStatus(501);
+                    } else {
+                        res.status(200);
+                        res.send(result);
+                    };
+                });
+        }
     });
 
 app.route('/getServiceName')
@@ -399,112 +601,153 @@ app.route('/getServiceName')
 
 app.route('/serviceMoreInfo')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await findServiceDetails(req.body.serviceId, req.body.workerId).then(result => {
-            if (result['answer'] === false) {
-                res.sendStatus(501);
-            } else {
-                res.status(200);
-                res.send(result);
-            };
-        });
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else {
+            await findServiceDetails(req.body.serviceId, req.session.worker[2]).then(result => {
+                if (result['answer'] === false) {
+                    res.sendStatus(501);
+                } else {
+                    res.status(200);
+                    res.send(result);
+                };
+            });
+        }
     });
 
 app.route('/changeServiceWorker')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        changeServiceWorker(req.body.serviceId, req.body.workerId, req.body.price, req.body.distance, req.body.comment)
-            .then(result => {
-                if (result == false) {
-                    res.sendStatus(501)
-                } else {
-                    res.sendStatus(200)
-                }
-            })
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else {
+            changeServiceWorker(req.body.serviceId, req.session.worker[2], req.body.price, req.body.distance, req.body.comment)
+                .then(result => {
+                    if (result == false) {
+                        res.sendStatus(501)
+                    } else {
+                        res.sendStatus(200)
+                    }
+                })
+        }
     })
 
 app.route('/addServiceWorker')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        addServiceWorker(req.body.serviceId, req.body.workerId, req.body.price, req.body.distance, req.body.comment)
-            .then(result => {
-                if (result == false) {
-                    res.sendStatus(501);
-                } else {
-                    res.sendStatus(200);
-                }
-            })
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else {
+            addServiceWorker(req.body.serviceId, req.session.worker[2], req.body.price, req.body.distance, req.body.comment)
+                .then(result => {
+                    if (result == false) {
+                        res.sendStatus(501);
+                    } else {
+                        res.sendStatus(200);
+                    }
+                })
+        }
     });
 
 app.route('/findAvailableOrders')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await findAvailableOrders(req.body.workerId).then(result => {
-            if (result['answer'] == false) {
-                res.sendStatus(501);
-            } else {
-                res.status(200);
-                res.send(result)
-            };
-        });
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else {
+            await findAvailableOrders(req.session.worker[2]).then(result => {
+                if (result['answer'] == false) {
+                    res.sendStatus(501);
+                } else {
+                    res.status(200);
+                    res.send(result)
+                };
+            });
+        }
     });
     
 app.route('/availableChats')
     .get(async function (req, res) {
-        res.status(200)
-        res.setHeader('Content-Type', 'text/html')
-        res.sendFile(path.join(__dirname, 'specialist/ru/availableChats.html'));
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else {
+            res.status(200)
+            res.setHeader('Content-Type', 'text/html')
+            res.sendFile(path.join(__dirname, 'specialist/ru/availableChats.html'));
+        }
     })
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await findWorkersActiveChats(req.body.workerId).then(result => {
-            if (result == false) {
-                res.sendStatus(501)
-            } else {
-                res.status(200);
-                res.send(result)
-            }
-        });    
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else {
+            await findWorkersActiveChats(req.session.worker[2]).then(result => {
+                if (result == false) {
+                    res.sendStatus(501)
+                } else {
+                    res.status(200);
+                    res.send(result)
+                }
+            });
+        }
     });
 
 app.route('/availableOrders')
     .get(function (req, res) {
-        res.status(200);
-        res.sendFile(path.join(__dirname, 'specialist/ru/availableOrders.html'))
-    })
+        if (req.session.worker == undefined) {
+            res.sendStatus(401)
+        } else {
+            res.status(200);
+            res.sendFile(path.join(__dirname, 'specialist/ru/availableOrders.html'))
+        }
+    });
 
 app.route('/availableOrderDescription')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await orderDiscription(req.body.orderId).then(result => {
-            if (result == false) {
-                res.sendStatus(501)
-            } else {
-                res.status(200);
-                res.send(result)
-            }
-        });
+        if (req.session.user == undefined) {
+            res.sendStatus(401)
+        } else {
+            await orderDiscription(req.body.orderId).then(result => {
+                if (result == false) {
+                    res.sendStatus(501)
+                } else {
+                    res.status(200);
+                    res.send(result)
+                }
+            });
+        }
     });
 
 app.route('/changeOrder')
     .post(express.urlencoded({ extended: false }), async function (req, res) {
-        await changeOrder(req.body.orderId, req.body.description, req.body.distance, req.body.date)
-            .then(result => {
-                if (result == true) {
-                    res.sendStatus(200);
-                } else {
-                    res.sendStatus(501);
-                }
-            });
+        if (req.session.user == undefined) {
+            res.sendStatus(401)
+        } else {
+            console.log(req.body.distance)
+            await changeOrder(req.body.orderId, req.session.user[2], req.body.description, req.body.distance, req.body.date)
+                .then(result => {
+                    if (result == true) {
+                        res.sendStatus(200);
+                    } else {
+                        res.sendStatus(501);
+                    }
+                });
+        }
     });
 
 
 
 app.get('/deleteWorker', async function (req, res) {
-    await deleteWorker(req.session.workerEmail)
-    .then(result => {
-        if (result == true) {
-            req.session.workerEmail = null;
-            res.status(200);
-            res.redirect('/');
-        } else {
-            res.sendStatus(401);
-        };
-    });
+    if (req.session.user == undefined) {
+        res.sendStatus(401)
+    } else {
+        await deleteWorker(req.session.worker[2])
+            .then(result => {
+                if (result == true) {
+                    req.session.workerEmail = null;
+                    res.status(200);
+                    res.redirect('/');
+                } else {
+                    res.sendStatus(401);
+                };
+            });
+    }
 });
 
 
@@ -515,13 +758,16 @@ app.route('/reg')
         res.sendFile(path.join(__dirname, 'specialist/ru/reg.html'));
     })
     .post(jsonParser, async function (req, res) {
-        var answer = await registerUser(req.body.email, req.body.password);
-        if (answer == true) {
-            res.sendStatus(200)
-        } else {
-            res.sendStatus(401)
-        }
-
+        /*mailer(req.body.email)
+        if (err) { console.log(err) }
+        else {*/
+            var answer = await registerUser(req.body.email, req.body.password);
+            if (answer == true) {
+                res.sendStatus(200)
+            } else {
+                res.sendStatus(401)
+            }
+       /* }*/
     });
 
 app.get('/', (req, res) => {
@@ -534,15 +780,20 @@ app.get('/', (req, res) => {
 
 
 app.post('/changeWorker', express.urlencoded({ extended: false }), async function (req, res) {
-    await changeWorker(req.body.workerId, req.body.columnName, req.body.value)
-        .then(result => {
-            if (result == true) {
-                res.sendStatus(200)
-            }
-            else {
-                res.sendStatus(501)
-            }
-        })
+    if (req.session.user == undefined) {
+        res.sendStatus(401)
+    } else {
+        await changeWorker(req.body.workerId, req.body.columnName, req.body.value)
+
+            .then(result => {
+                if (result == true) {
+                    res.sendStatus(200)
+                }
+                else {
+                    res.sendStatus(501)
+                }
+            })
+    }
     
 })
  

@@ -12,7 +12,7 @@ socket.emit('create', localStorage.getItem('chatId'));
 /** Запрос на все прошлые сообщения в чате*/
 function getMessages() {
     var request = new XMLHttpRequest();
-    request.open('POST', '/findMassages', true)
+    request.open('POST', '/findMessages', true)
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader("charset", "utf-8")
     request.addEventListener('load', () => {

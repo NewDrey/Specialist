@@ -137,7 +137,7 @@ document.getElementById('sendMessage').addEventListener('click', async () => {
         /** Кнопка для перехода в чат с пользоватлем */
         window.location = '/orderChats'
     });
-    var body = String('workerId=' + localStorage.getItem('workerId') + '&userId=' + localStorage.getItem('userOrder') + '&orderId=' + localStorage.getItem('orderId'));
+    var body = String('userId=' + localStorage.getItem('userOrder') + '&orderId=' + localStorage.getItem('orderId'));
     request.send(body)
 });
 

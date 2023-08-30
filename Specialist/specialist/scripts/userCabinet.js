@@ -20,7 +20,7 @@ document.getElementById('deleteUserButton').addEventListener('click', function (
 document.getElementById('changeName').addEventListener('submit', function (e) {
     e.preventDefault();
     let nameValue = document.getElementById('name').value
-    let requestValue = String('userId=' + localStorage.getItem('userId') + "&columnName=" + 'name' + '&value=' + nameValue );
+    let requestValue = String("&columnName=" + 'name' + '&value=' + nameValue );
     let request = new XMLHttpRequest();
     request.open('POST', '/changeUser', true);
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -44,7 +44,7 @@ document.getElementById('changeName').addEventListener('submit', function (e) {
 document.getElementById('changePhoneButton').addEventListener('click', function (e) {
     e.preventDefault();
     let phoneValue = document.getElementById('phone').value.replace(/[^0-9]/g, '')
-    let requestValue = String('userId=' + localStorage.getItem('userId') + "&columnName=" + 'phone' + '&value=' + phoneValue);
+    let requestValue = String("columnName=" + 'phone' + '&value=' + phoneValue);
     let request = new XMLHttpRequest();
     request.open('POST', '/changeUser', true);
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

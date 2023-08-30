@@ -201,7 +201,7 @@ document.getElementById('changeServiceData').addEventListener('submit', function
     request.open('POST', '/addServiceWorker', true)
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader("charset", "utf-8");
-    request.addListener('load', () => {
+    request.addEventListener('load', () => {
         if (request.status == 501) {
             console.log('Ошибка')
         } else {

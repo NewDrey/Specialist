@@ -50,7 +50,7 @@ document.getElementById('newOrderButton').addEventListener('click', function (e)
     let cityValue = localStorage.getItem('city_ru' + cityId);
 
     /** Запрос на добавление заказа */
-    let requestValue = String("userId=" + localStorage.getItem('userId') + "&serviceId=" + localStorage.getItem('serviceOrderId')
+    let requestValue = String("&serviceId=" + localStorage.getItem('serviceOrderId')
         + '&description=' + descriptionValue + '&date=' + dateValue + '&distance=' + distanceValue + '&city=' + cityValue);
     let request = new XMLHttpRequest();
     request.open('POST', '/createOrder', true);
